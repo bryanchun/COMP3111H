@@ -9,7 +9,7 @@ addons:
     packages:
       - oracle-java8-installer
       
-script
+script:
   - cd $TRAVIS_BUILD_DIR
   - ./gradlew assemble
   - ./gradlew check
