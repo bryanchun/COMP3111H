@@ -1,4 +1,5 @@
 # COMP3111: Software Engineering Project - Webscrapper
+[![Build Status](https://travis-ci.com/bryanchun/COMP3111H.svg?token=YXnT9FdFNUzyG82UFUoq&branch=master)](https://travis-ci.com/bryanchun/COMP3111H)
 ## Project Problem Statement and Activities
 
 
