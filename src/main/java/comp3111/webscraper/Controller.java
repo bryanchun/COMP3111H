@@ -69,8 +69,7 @@ public class Controller {
     		output += item.getTitle() + "\t" + item.getPrice() + "\t" + item.getUrl() + "\n";
     	}
     	textAreaConsole.setText(output);
-    	// Add the following line
-    	labelCount.setText("Hello");
+    	labelCount.setText("Hi!");
     }
     
     /**
