@@ -6,6 +6,9 @@
 
 .idea/
 *.iml
+.project
+.classpath
+.settings/
 
 # User-specific stuff
 .idea/**/workspace.xml
