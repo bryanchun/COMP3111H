@@ -5,11 +5,10 @@ package comp3111.webscraper;
 
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.Hyperlink;
+import javafx.scene.control.*;
+
 import java.util.List;
+import java.util.Vector;
 
 
 /**
@@ -39,9 +38,15 @@ public class Controller {
     
     @FXML
     private TextArea textAreaConsole;
+
+    @FXML
+    private Button buttonRefine;
     
     private WebScraper scraper;
-    
+
+    private List<Item> result;
+    private List<Item> refineResult;
+
     /**
      * Default controller
      */
@@ -54,7 +59,7 @@ public class Controller {
      */
     @FXML
     private void initialize() {
-    	
+
     }
     
     /**
@@ -63,15 +68,37 @@ public class Controller {
     @FXML
     private void actionSearch() {
     	System.out.println("actionSearch: " + textFieldKeyword.getText());
-    	List<Item> result = scraper.scrape(textFieldKeyword.getText());
-    	String output = "";
-    	for (Item item : result) {
-    		output += item.getTitle() + "\t" + item.getPrice() + "\t" + item.getUrl() + "\n";
+    	this.result = scraper.scrape(textFieldKeyword.getText());
+    	StringBuilder output = new StringBuilder();
+    	for (Item item : this.result) {
+    		output.append(item.getTitle()).append("\t").append(item.getPrice()).append("\t").append(item.getUrl()).append("\n");
     	}
-    	textAreaConsole.setText(output);
-    	labelCount.setText("Hi!");
+    	textAreaConsole.setText(output.toString());
+    	buttonRefine.setDisable(false);
+
     }
-    
+
+    /**
+     * Called when the refine search button is pressed.
+     */
+    @FXML
+    private void actionRefineSearch() {
+        String query = textFieldKeyword.getText();
+        System.out.println("actionRefineSearch: " + query);
+        StringBuilder output = new StringBuilder();
+        this.refineResult = new Vector<>();
+        for (Item item : this.result) {
+            if (item.getTitle().contains(query)) {
+                this.refineResult.add(item);
+                output.append(item.getTitle()).append("\t").append(item.getPrice()).append("\t").append(item.getUrl()).append("\n");
+            }
+        }
+
+        textAreaConsole.setText(output.toString().toString());
+        //TODO(mcreng): Update all tabs after refining search.
+        buttonRefine.setDisable(true);
+    }
+
     /**
      * Called when the new button is pressed. Very dummy action - print something in the command prompt.
      */
