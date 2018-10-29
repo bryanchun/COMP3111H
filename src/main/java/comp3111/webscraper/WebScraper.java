@@ -1,6 +1,7 @@
 package comp3111.webscraper;
 
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.gargoylesoftware.htmlunit.WebClient;
@@ -91,14 +92,14 @@ public class WebScraper {
 			HtmlPage page = client.getPage(searchUrl);
 
 			
-			List<?> items = (List<?>) page.getByXPath("//li[@class='result-row']");
+			List<?> items = page.getByXPath("//li[@class='result-row']");
 			
-			Vector<Item> result = new Vector<Item>();
+			ArrayList<Item> result = new ArrayList<>();
 
-			for (int i = 0; i < items.size(); i++) {
-				HtmlElement htmlItem = (HtmlElement) items.get(i);
-				HtmlAnchor itemAnchor = ((HtmlAnchor) htmlItem.getFirstByXPath(".//p[@class='result-info']/a"));
-				HtmlElement spanPrice = ((HtmlElement) htmlItem.getFirstByXPath(".//a/span[@class='result-price']"));
+			for (Object item1 : items) {
+				HtmlElement htmlItem = (HtmlElement) item1;
+				HtmlAnchor itemAnchor = htmlItem.getFirstByXPath(".//p[@class='result-info']/a");
+				HtmlElement spanPrice = htmlItem.getFirstByXPath(".//a/span[@class='result-price']");
 
 				// It is possible that an item doesn't have any price, we set the price to 0.0
 				// in this case
