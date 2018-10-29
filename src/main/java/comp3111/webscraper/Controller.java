@@ -7,8 +7,8 @@ package comp3111.webscraper;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 
 /**
@@ -86,7 +86,7 @@ public class Controller {
         String query = textFieldKeyword.getText();
         System.out.println("actionRefineSearch: " + query);
         StringBuilder output = new StringBuilder();
-        this.refineResult = new Vector<>();
+        this.refineResult = new ArrayList<>();
         for (Item item : this.result) {
             if (item.getTitle().contains(query)) {
                 this.refineResult.add(item);
