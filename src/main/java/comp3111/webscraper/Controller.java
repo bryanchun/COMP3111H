@@ -94,7 +94,7 @@ public class Controller {
             }
         }
 
-        textAreaConsole.setText(output.toString().toString());
+        textAreaConsole.setText(output.toString());
         //TODO(mcreng): Update all tabs after refining search.
         buttonRefine.setDisable(true);
     }
