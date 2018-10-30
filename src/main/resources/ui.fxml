@@ -27,7 +27,7 @@
 
 <!-- this line specific which class is your controller - comp3111.webscraper.Controller. Thus all events shall be handled by this class -->
 
-<VBox prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/8.0.131" xmlns:fx="http://javafx.com/fxml/1" fx:controller="comp3111.webscraper.Controller">
+<VBox prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="comp3111.webscraper.Controller">
   <children>
   
   	<!-- This is your MenuBar -->
@@ -62,6 +62,7 @@
                         <TextField fx:id="textFieldKeyword" layoutX="14.0" layoutY="36.0" prefHeight="25.0" prefWidth="131.0" promptText="Keyword" />
                         <!--  this is the Go button. When it is clicked, it calls Controller.actionSearch() -->
                         <Button layoutX="145.0" layoutY="36.0" mnemonicParsing="false" onAction="#actionSearch" prefHeight="25.0" prefWidth="35.0" text="Go" />
+                        <Button fx:id="buttonRefine" disable="true" layoutX="145.0" layoutY="88.0" mnemonicParsing="false" onAction="#actionRefineSearch" prefHeight="26.0" prefWidth="35.0" text="Refine Search" />
 
                      </children>
                   </AnchorPane>
