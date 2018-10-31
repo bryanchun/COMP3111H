@@ -3,10 +3,22 @@
  */
 package comp3111.webscraper;
 
-
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.collections.ObservableList;
+import javafx.collections.ListChangeListener;
+import javafx.collections.FXCollections;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.util.Callback;
 
+import java.awt.*;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,6 +58,10 @@ public class Controller {
 
     private List<Item> result;
     private List<Item> refineResult;
+    private ObservableList<Item> obResult;
+
+    @FXML
+    private TableView<Item> table;
 
     /**
      * Default controller
@@ -59,10 +75,14 @@ public class Controller {
      */
     @FXML
     private void initialize() {
+        // Initialize and maintain a observable list
+        this.obResult = FXCollections.observableArrayList();
 
+        // Initialize Table factories and listeners
+        initTable();
     }
-    
-    /**
+
+     /**
      * Called when the search button is pressed.
      */
     @FXML
@@ -76,6 +96,8 @@ public class Controller {
     	textAreaConsole.setText(output.toString());
     	buttonRefine.setDisable(false);
 
+    	// Update obResult
+        this.obResult.setAll(this.result);
     }
 
     /**
@@ -97,14 +119,96 @@ public class Controller {
         textAreaConsole.setText(output.toString());
         //TODO(mcreng): Update all tabs after refining search.
         buttonRefine.setDisable(true);
+
+        // Update obResult
+        this.obResult.setAll(this.refineResult);
     }
 
     /**
      * Called when the new button is pressed. Very dummy action - print something in the command prompt.
      */
     @FXML
-    private void actionNew() {
+    private void actionNew()
+    {
     	System.out.println("actionNew");
+    }
+
+    /**
+     * Called when Controller initialize, instead of when Table Tab is clicked.
+     */
+    private void initTable() {
+        // Initialize mapping between table column text and Item attributes for setting list of Items to table
+        ObservableList<TableColumn<Item, ?>> columns = this.table.getColumns();
+        for (TableColumn column : columns) {
+            switch (column.getText()) {
+                case "Title":
+                    column.setCellValueFactory(new PropertyValueFactory<TableRow, Item>("title"));
+                    break;
+                case "Price":
+                    column.setCellValueFactory(new PropertyValueFactory("price"));
+                    break;
+                case "URL":
+                    column.setCellValueFactory(new PropertyValueFactory("url"));
+
+                    // Pop up a new windows/browser showing the item when the URL is clicked.
+                    column.setCellFactory(new Callback<TableColumn, TableCell>() {
+                        @Override
+                        public TableCell call(TableColumn param) {
+
+                            // Setup the cell that is will be handled
+                            final TableCell cell = new TableCell() {
+                                @Override
+                                protected void updateItem(Object t, boolean bln) {
+                                    super.updateItem(t, bln);
+                                    if (t != null) {
+                                        setText(t.toString());
+                                    }
+                                }
+                            };
+
+                            // Called when clicked a URL cell
+                            cell.setOnMouseClicked(event ->
+                                openURL(cell.getText())
+                            );
+                            return cell;
+                        }
+                    });
+                    break;
+                case "Posted Date":
+                    column.setCellValueFactory(new PropertyValueFactory("createdAt"));
+                    break;
+                default:
+                    break;
+            }
+
+            // Sort the result in ascending order on user clicking each column, and sort in descending order when user click again.
+            // Note that after pressing twice, the third click does nothing and resets so that the next click gives ascending sort.
+            column.setSortable(true);
+        }
+
+        // Update table items by and on the change of data in observed list
+        this.obResult.addListener((ListChangeListener<Item>) change -> {
+            System.out.println("obresults changed");
+            //System.out.println("Changed on " + change);
+            this.table.setItems(this.obResult);
+        });
+
+        // Make cells not editable
+        this.table.setEditable(false);
+    }
+
+    /**
+     * Helper function for opening a URL from a browser
+     * @param url
+     */
+    private void openURL(String url) {
+        try {
+            Desktop.getDesktop().browse(new URL(url).toURI());
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
     }
 }
 
