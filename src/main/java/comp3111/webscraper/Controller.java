@@ -142,6 +142,7 @@ public class Controller {
         for (TableColumn column : columns) {
             switch (column.getText()) {
                 case "Title":
+                    // Create ValueFactory of Item attribute to map to respective column
                     column.setCellValueFactory(new PropertyValueFactory<TableRow, Item>("title"));
                     break;
                 case "Price":
