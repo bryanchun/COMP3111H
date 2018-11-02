@@ -4,10 +4,16 @@ package comp3111.webscraper;
 import java.util.Date;
 
 public class Item {
+    public enum Portal {
+        Craigslist,
+        Carousell
+    }
+
     private String title;
     private double price;
     private String url;
     private Date createdAt;
+    private Portal portal;
 
     public String getTitle() {
         return title;
@@ -31,6 +37,14 @@ public class Item {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public Portal getPortal() {
+        return portal;
+    }
+
+    public void setPortal(Portal portal) {
+        this.portal = portal;
     }
 
     public Date getCreatedAt() {
