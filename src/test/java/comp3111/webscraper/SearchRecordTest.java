@@ -19,14 +19,6 @@ public class SearchRecordTest {
     }
 
     @Test
-    public void testSetRefineKeyword() {
-        SearchRecord searchRecord = new SearchRecord();
-        searchRecord.setRefineKeyword("test");
-        assertEquals(searchRecord.getRefineKeyword(), "test");
-        assertEquals(searchRecord.getRefineKeywordProperty().getValue(), "test");
-    }
-
-    @Test
     public void testItemsList() {
         SearchRecord searchRecord = new SearchRecord();
 
@@ -38,8 +30,15 @@ public class SearchRecordTest {
         itemTest.setCreatedAt(new Date());
         list.add(itemTest);
 
-        searchRecord.getItems().addAll(list);
+        searchRecord.getProducts().addAll(list);
 
-        assertThat(searchRecord.getItems(), is(list));
+        assertThat(searchRecord.getProducts(), is(list));
+    }
+
+    @Test
+    public void testKeyword() {
+        SearchRecord searchRecord = new SearchRecord();
+        searchRecord.setKeyword("test");
+        assertEquals("test", searchRecord.getKeyword());
     }
 }

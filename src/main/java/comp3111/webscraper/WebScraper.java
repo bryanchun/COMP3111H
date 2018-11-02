@@ -1,30 +1,35 @@
 package comp3111.webscraper;
 
+import java.io.IOException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
-import com.gargoylesoftware.htmlunit.html.HtmlElement;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import java.util.Vector;
+import com.gargoylesoftware.htmlunit.html.*;
+import jdk.nashorn.api.scripting.ScriptObjectMirror;
+
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 
 
 /**
- * WebScraper provide a sample code that scrape web content. After it is constructed, you can call the method scrape with a keyword, 
- * the client will go to the default url and parse the page by looking at the HTML DOM.  
+ * WebScraper provide a sample code that scrape web content. After it is constructed, you can call the method scrape with a keyword,
+ * the client will go to the default url and parse the page by looking at the HTML DOM.
  * <br/>
  * In this particular sample code, it access to craigslist.org. You can directly search on an entry by typing the URL
  * <br/>
  * https://newyork.craigslist.org/search/sss?sort=rel&amp;query=KEYWORD
- *  <br/>
+ * <br/>
  * where KEYWORD is the keyword you want to search.
  * <br/>
  * Assume you are working on Chrome, paste the url into your browser and press F12 to load the source code of the HTML. You might be freak
  * out if you have never seen a HTML source code before. Keep calm and move on. Press Ctrl-Shift-C (or CMD-Shift-C if you got a mac) and move your
  * mouse cursor around, different part of the HTML code and the corresponding the HTML objects will be highlighted. Explore your HTML page from
- * body &rarr; section class="page-container" &rarr; form id="searchform" &rarr; div class="content" &rarr; ul class="rows" &rarr; any one of the multiple 
+ * body &rarr; section class="page-container" &rarr; form id="searchform" &rarr; div class="content" &rarr; ul class="rows" &rarr; any one of the multiple
  * li class="result-row" &rarr; p class="result-info". You might see something like this:
  * <br/>
  * <pre>
@@ -51,74 +56,157 @@ import java.util.Vector;
  *           </a>
  *       </span>
  *   </p>
- *}
- *</pre>
+ * }
+ * </pre>
  * <br/>
- * The code 
+ * The code
  * <pre>
  * {@code
  * List<?> items = (List<?>) page.getByXPath("//li[@class='result-row']");
  * }
  * </pre>
- * extracts all result-row and stores the corresponding HTML elements to a list called items. Later in the loop it extracts the anchor tag 
- * &lsaquo; a &rsaquo; to retrieve the display text (by .asText()) and the link (by .getHrefAttribute()). It also extracts  
- * 
- *
+ * extracts all result-row and stores the corresponding HTML elements to a list called items. Later in the loop it extracts the anchor tag
+ * &lsaquo; a &rsaquo; to retrieve the display text (by .asText()) and the link (by .getHrefAttribute()). It also extracts
  */
 public class WebScraper {
 
-	private static final String DEFAULT_URL = "https://newyork.craigslist.org/";
-	private WebClient client;
+    private static final String DEFAULT_URL = "https://newyork.craigslist.org/";
+    private static final float USD2HKD = 7.8f;
+    private static final DateFormat iso8061Formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ"); //2017-06-08T15:22:17.000Z
 
-	/**
-	 * Default Constructor 
-	 */
-	public WebScraper() {
-		client = new WebClient();
-		client.getOptions().setCssEnabled(false);
-		client.getOptions().setJavaScriptEnabled(false);
-	}
 
-	/**
-	 * The only method implemented in this class, to scrape web content from the craigslist
-	 * 
-	 * @param keyword - the keyword you want to search
-	 * @return A list of Item that has found. A zero size list is return if nothing is found. Null if any exception (e.g. no connectivity)
-	 */
-	public List<Item> scrape(String keyword) {
+    private WebClient client;
 
-		try {
-			String searchUrl = DEFAULT_URL + "search/sss?sort=rel&query=" + URLEncoder.encode(keyword, "UTF-8");
-			HtmlPage page = client.getPage(searchUrl);
+    /**
+     * Default Constructor
+     */
+    public WebScraper() {
+        client = new WebClient();
+        client.getOptions().setCssEnabled(false);
+        client.getOptions().setJavaScriptEnabled(false);
+    }
 
-			
-			List<?> items = page.getByXPath("//li[@class='result-row']");
-			
-			ArrayList<Item> result = new ArrayList<>();
+    /**
+     * The only method implemented in this class, to scrape web content from the craigslist
+     *
+     * @param keyword - the keyword you want to search
+     * @return A list of Item that has found. A zero size list is return if nothing is found. Null if any exception (e.g. no connectivity)
+     */
+    public List<Item> scrape(String keyword) {
 
-			for (Object item1 : items) {
-				HtmlElement htmlItem = (HtmlElement) item1;
-				HtmlAnchor itemAnchor = htmlItem.getFirstByXPath(".//p[@class='result-info']/a");
-				HtmlElement spanPrice = htmlItem.getFirstByXPath(".//a/span[@class='result-price']");
+        List<Item> allItems = new ArrayList<>();
+        allItems.addAll(scrapeCraigslist(keyword));
+        allItems.addAll(scrapeCarousell(keyword));
 
-				// It is possible that an item doesn't have any price, we set the price to 0.0
-				// in this case
-				String itemPrice = spanPrice == null ? "0.0" : spanPrice.asText();
+        allItems.sort(Comparator.comparing(Item::getPortal));
+        allItems.sort(Comparator.comparingDouble(Item::getPrice));
 
-				Item item = new Item();
-				item.setTitle(itemAnchor.asText());
-				item.setUrl(DEFAULT_URL + itemAnchor.getHrefAttribute());
+        return allItems;
+    }
 
-				item.setPrice(new Double(itemPrice.replace("$", "")));
+    /**
+     * Scrapes from Carousell
+     *
+     * @param keyword The search keyword
+     * @return A List of search results as Items
+     */
+    private List<Item> scrapeCarousell(String keyword) {
+        List<Item> results = new ArrayList<>();
 
-				result.add(item);
-			}
-			client.close();
-			return result;
-		} catch (Exception e) {
-			System.out.println(e);
-		}
-		return null;
-	}
+        try {
+            String searchURL = "https://hk.carousell.com/search/products/?query=" + URLEncoder.encode(keyword, "UTF-8");
+            HtmlPage page = client.getPage(searchURL);
+
+            DomNodeList<DomElement> scriptTags = page.getElementsByTagName("script");
+            String appScript = "";
+            for (DomElement scriptTag: scriptTags) {
+                String script = scriptTag.getTextContent();
+                if (script.contains("window.App")) {
+                    appScript = script;
+                    break;
+                }
+            }
+
+            if (!appScript.isEmpty()) {
+                ScriptEngine scriptEngine = new ScriptEngineManager().getEngineByName("nashorn");
+                scriptEngine.eval("var window = {}; "  + appScript);
+                ScriptObjectMirror mirror = (ScriptObjectMirror)  scriptEngine.eval("window.App.context.dispatcher.stores.ProductStore.productsMap");
+
+                for (Map.Entry<String, Object> entry : mirror.entrySet()) {
+                    Object o = entry.getValue();
+                    ScriptObjectMirror product = (ScriptObjectMirror) o;
+
+                    /*
+                    id: String
+                    title: String
+                    price: String, "HK$2,500"
+                    timeCreated: String "2016-08-21T17:28:14.000Z"
+
+                    url in form of
+                        https://hk.carousell.com/p/title-id
+                    this is tested ok
+                        https://hk.carousell.com/p/id
+                     */
+
+                    String priceString = ((String) product.get("price")).replaceAll("[HK$,]", "");
+
+                    Item item = new Item();
+                    item.setTitle((String) product.get("title"));
+                    item.setPortal(Item.Portal.Carousell);
+                    item.setPrice(new Double(priceString));
+                    item.setUrl("https://hk.carousell.com/p/" + product.get("id"));
+                    item.setCreatedAt(iso8061Formatter.parse(((String) product.get("timeCreated")).replace("Z", "+0000")));
+
+                    results.add(item);
+                }
+            }
+
+
+        } catch (IOException | ParseException | ScriptException e) {
+            e.printStackTrace();
+        }
+
+        return results;
+    }
+
+    /**
+     * Scrapes from Craigslist
+     *
+     * @param keyword The search keyword
+     * @return A List of search results as Items
+     */
+    private List<Item> scrapeCraigslist(String keyword) {
+        List<Item> results = new ArrayList<>();
+
+        try {
+            String searchUrl = DEFAULT_URL + "search/sss?sort=rel&query=" + URLEncoder.encode(keyword, "UTF-8");
+            HtmlPage page = client.getPage(searchUrl);
+
+
+            List<?> items = page.getByXPath("//li[@class='result-row']");
+
+            for (Object item1 : items) {
+                HtmlElement htmlItem = (HtmlElement) item1;
+                HtmlAnchor itemAnchor = htmlItem.getFirstByXPath(".//p[@class='result-info']/a");
+                HtmlElement spanPrice = htmlItem.getFirstByXPath(".//a/span[@class='result-price']");
+
+                // It is possible that an item doesn't have any price, we set the price to 0.0
+                // in this case
+                String itemPrice = spanPrice == null ? "0.0" : spanPrice.asText();
+
+                Item item = new Item();
+                item.setTitle(itemAnchor.asText());
+                item.setPortal(Item.Portal.Craigslist);
+                item.setUrl(itemAnchor.getHrefAttribute());
+                item.setPrice(Math.round(new Double(itemPrice.replace("$", "")) * USD2HKD * 100.0)/100.0);
+
+                results.add(item);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return results;
+    }
 
 }
