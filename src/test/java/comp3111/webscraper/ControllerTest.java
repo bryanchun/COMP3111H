@@ -1,9 +1,6 @@
 package comp3111.webscraper;
 
-import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
@@ -13,16 +10,13 @@ import javafx.stage.Stage;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.testfx.api.FxAssert;
 import org.testfx.api.FxToolkit;
 import org.testfx.framework.junit.ApplicationTest;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Observable;
 
 import static org.junit.Assert.*;
 
@@ -136,16 +130,6 @@ public class ControllerTest extends ApplicationTest {
 
         // Check cells in table are not editable
         assertFalse(table.isEditable());
-
-//        clickOn("#table");
-//        FxAssert.verifyThat("#table,0,2", hasText((String) table.getColumns().get(2).getCellObservableValue(0).getValue()));
-//        click("#table", "{\"cell\":[0,\"Id\"]}");
-
-        // Check cells in table are sortable on click of column header
-//        clickOn((TableCell) table.getColumns().get(0).getCellFactory());
-//        assertEquals(table.getColumns().get(0).getSortType(), TableColumn.SortType.DESCENDING);
-//        clickOn(table.getColumns().get(0).getTableView());
-//        assertEquals(table.getColumns().get(0).getSortType(), TableColumn.SortType.ASCENDING);
 
     }
 }

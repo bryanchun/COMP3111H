@@ -109,6 +109,7 @@
                                               <TableColumn editable="false" prefWidth="90.0" text="Price" />
                                                 <TableColumn editable="false" prefWidth="78.0" text="URL" />
                                                 <TableColumn editable="false" prefWidth="88.0" text="Posted Date" />
+                                                <TableColumn editable="false" prefWidth="88.0" text="Portal" />
                                             </columns>
                                           </TableView>
                                        </children>

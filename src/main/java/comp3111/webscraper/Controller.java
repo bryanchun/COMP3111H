@@ -178,6 +178,9 @@ public class Controller {
                 case "Posted Date":
                     column.setCellValueFactory(new PropertyValueFactory("createdAt"));
                     break;
+                // TODO(bryanchun): Fill in Portal column
+//                case "Portal":
+//                    column.setCellFactory(new PropertyValueFactory("portal"));
                 default:
                     break;
             }
