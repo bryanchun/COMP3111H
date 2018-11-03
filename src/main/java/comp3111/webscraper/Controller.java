@@ -13,12 +13,11 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import javafx.util.Callback;
+import javafx.application.HostServices;
 
-import java.awt.*;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,6 +59,8 @@ public class Controller {
     private List<Item> refineResult;
     private ObservableList<Item> obResult;
 
+    @FXML
+    private VBox root;
     @FXML
     private TableView<Item> table;
 
@@ -206,13 +207,9 @@ public class Controller {
      * @param url
      */
     private void openURL(String url) {
-        try {
-            Desktop.getDesktop().browse(new URL(url).toURI());
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
+        Stage stage = (Stage) root.getScene().getWindow();
+        HostServices hostServices = (HostServices) stage.getProperties().get("hostServices");
+        hostServices.showDocument(url);
     }
 }
 

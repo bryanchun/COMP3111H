@@ -53,6 +53,7 @@ public class WebScraperApplication extends Application {
    		Scene scene =  new Scene(root);
    		stage.setScene(scene);
    		stage.setTitle("WebScrapper");
+   		stage.getProperties().put("hostServices", this.getHostServices());
    		stage.show();
     		
 
