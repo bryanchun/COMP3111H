@@ -16,15 +16,17 @@ public class Item {
     /**
      * Default Constructor
      */
-    public Item() {}
+    public Item() {
+    }
 
     /**
      * Constructs Item with all fields
-     * @param title The product title
-     * @param price The product price
-     * @param url The product details URL
+     *
+     * @param title     The product title
+     * @param price     The product price
+     * @param url       The product details URL
      * @param createdAt The product creation date
-     * @param portal The name of the portal the product comes from
+     * @param portal    The name of the portal the product comes from
      */
     public Item(String title, double price, String url, Date createdAt, String portal) {
         this.title = title;

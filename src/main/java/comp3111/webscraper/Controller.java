@@ -1,56 +1,48 @@
 /**
- * 
+ *
  */
 package comp3111.webscraper;
 
 
+import javafx.application.HostServices;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.collections.ListChangeListener;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Callback;
-import javafx.application.HostServices;
-
-import java.util.List;
 
 
 /**
- * 
  * @author kevinw
- *
- *
+ * <p>
+ * <p>
  * Controller class that manage GUI interaction. Please see document about JavaFX for details.
- * 
  */
 public class Controller {
 
-    @FXML 
-    private Label labelCount; 
+    @FXML
+    private Label labelCount;
 
-    @FXML 
-    private Label labelPrice; 
+    @FXML
+    private Label labelPrice;
 
-    @FXML 
-    private Hyperlink labelMin; 
+    @FXML
+    private Hyperlink labelMin;
 
-    @FXML 
-    private Hyperlink labelLatest; 
+    @FXML
+    private Hyperlink labelLatest;
 
     @FXML
     private TextField textFieldKeyword;
-    
+
     @FXML
     private TextArea textAreaConsole;
 
@@ -58,12 +50,6 @@ public class Controller {
     private Button buttonRefine;
 
     private ObservableList<Item> currentProducts = FXCollections.observableArrayList();
-
-    @Deprecated
-    private List<Item> result;
-
-    @Deprecated
-    private List<Item> refineResult;
 
     @FXML
     private VBox root;
@@ -108,14 +94,14 @@ public class Controller {
         // Initialize Table factories and listeners
         initTable();
     }
-    
+
     /**
      * Called when the search button is pressed.
      */
     @FXML
     private void actionSearch() {
-    	System.out.println("actionSearch: " + textFieldKeyword.getText());
-    	SearchRecord.newSearch(textFieldKeyword.getText());
+        System.out.println("actionSearch: " + textFieldKeyword.getText());
+        SearchRecord.newSearch(textFieldKeyword.getText());
     }
 
     /**
@@ -125,9 +111,7 @@ public class Controller {
     private void actionRefineSearch() {
         String query = textFieldKeyword.getText();
         System.out.println("actionRefineSearch: " + query);
-        StringBuilder output = new StringBuilder();
-
-        //TODO(mcreng): Update all tabs after refining search.
+        SearchRecord.newRefineSearch(query);
     }
 
     /**
@@ -135,7 +119,7 @@ public class Controller {
      */
     @FXML
     private void actionNew() {
-    	System.out.println("actionNew");
+        System.out.println("actionNew");
     }
 
     private <S,T> Callback<TableColumn<S,T>, TableCell<S,T>> newURLCellFactory() {
@@ -201,6 +185,7 @@ public class Controller {
 
     /**
      * Helper function for opening a URL from a browser
+     *
      * @param url
      */
     private void openURL(String url) {

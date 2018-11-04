@@ -2,14 +2,15 @@ package comp3111.webscraper;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.testfx.api.FxToolkit;
 import org.testfx.framework.junit.ApplicationTest;
@@ -17,7 +18,6 @@ import org.testfx.framework.junit.ApplicationTest;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -29,7 +29,7 @@ public class ControllerTest extends ApplicationTest {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("/ui.fxml"));
         VBox root = loader.load();
-        Scene scene =  new Scene(root);
+        Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.show();
         stage.toFront();
@@ -49,21 +49,34 @@ public class ControllerTest extends ApplicationTest {
         release(new MouseButton[]{});
     }
 
-    @Ignore("Ignored to past test")
     @Test
     public void testRefineSearch() throws Exception {
-        // Get corresponding fields through reflection
-        Field result = Controller.class.getDeclaredField("result");
-        result.setAccessible(true);
-        Field refineResult = Controller.class.getDeclaredField("refineResult");
-        refineResult.setAccessible(true);
+        // Create a new search record
+        SearchRecord searchRecord = new SearchRecord();
 
-        // Construct new Item to feed into result
+        // Using reflection to access the private attributes
+        Field keyword = SearchRecord.class.getDeclaredField("keyword");
+        keyword.setAccessible(true);
+        Field hasSearchRefined = SearchRecord.class.getDeclaredField("hasSearchRefined");
+        hasSearchRefined.setAccessible(true);
+        Field products = SearchRecord.class.getDeclaredField("products");
+        products.setAccessible(true);
+
+        // Set keyword and hasSearchRecord
+        keyword.set(searchRecord, "iPhone");
+        hasSearchRefined.set(searchRecord, false);
+
+        // Construct new Item to feed into products
         Item item = new Item();
         item.setTitle("iPhone 6 16GB");
-            result.set(controller, new ArrayList<Item>() {{
+        products.set(searchRecord, new ArrayList<Item>() {{
             add(item);
         }});
+
+        // Push the created searchRecord
+        Method pushHistory = SearchRecord.class.getDeclaredMethod("pushHistory", SearchRecord.class);
+        pushHistory.setAccessible(true);
+        pushHistory.invoke(null, searchRecord);
 
         // Assume "iPhone 6" is set for refine query
         TextField textFieldKeyword = lookup("#textFieldKeyword").query();
@@ -75,7 +88,7 @@ public class ControllerTest extends ApplicationTest {
         method.invoke(controller);
 
         // The Item should remain
-        assertEquals(refineResult.get(controller), result.get(controller));
+        assertEquals(SearchRecord.getLatestProperty().get().getProducts(), searchRecord.getProducts());
 
         // Assume "iPhone 7" is set for refine query
         textFieldKeyword.setText("iPhone 7");
@@ -84,7 +97,7 @@ public class ControllerTest extends ApplicationTest {
         method.invoke(controller);
 
         // The Item should not remain
-        assertTrue(((List<?>) refineResult.get(controller)).isEmpty());
+        assertTrue(SearchRecord.getLatestProperty().get().getProducts().isEmpty());
     }
 
     @Test
