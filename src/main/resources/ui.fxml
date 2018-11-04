@@ -105,11 +105,11 @@
                                        <children>
                                           <TableView fx:id="table" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                             <columns>
-                                              <TableColumn editable="false" prefWidth="154.0" text="Title" />
-                                              <TableColumn editable="false" prefWidth="90.0" text="Price" />
-                                                <TableColumn editable="false" prefWidth="78.0" text="URL" />
-                                                <TableColumn editable="false" prefWidth="88.0" text="Posted Date" />
-                                                <TableColumn editable="false" prefWidth="88.0" text="Portal" />
+                                                <TableColumn editable="false" prefWidth="154.0" text="Title" fx:id="titleColumn" />
+                                                <TableColumn editable="false" prefWidth="90.0" text="Price" fx:id="priceColumn" />
+                                                <TableColumn editable="false" prefWidth="78.0" text="URL" fx:id="urlColumn" />
+                                                <TableColumn editable="false" prefWidth="88.0" text="Posted Date" fx:id="postedDateColumn" />
+                                                <TableColumn editable="false" prefWidth="88.0" text="Portal" fx:id="portalColumn" />
                                             </columns>
                                           </TableView>
                                        </children>

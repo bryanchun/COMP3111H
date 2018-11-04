@@ -23,6 +23,7 @@ import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.application.HostServices;
 
+import java.util.Date;
 import java.util.List;
 
 
@@ -69,6 +70,16 @@ public class Controller {
     private VBox root;
     @FXML
     private TableView<Item> table;
+    @FXML
+    private TableColumn<Item, String> titleColumn;
+    @FXML
+    private TableColumn<Item, Double> priceColumn;
+    @FXML
+    private TableColumn<Item, String> urlColumn;
+    @FXML
+    private TableColumn<Item, Date> postedDateColumn;
+    @FXML
+    private TableColumn<Item, String> portalColumn;
 
     /**
      * StringProperty storing text that is shown in the console TextArea
@@ -157,36 +168,20 @@ public class Controller {
      */
     private void initTable() {
         // Initialize mapping between table column text and Item attributes for setting list of Items to table
-        ObservableList<TableColumn<Item, ?>> columns = this.table.getColumns();
+        titleColumn.setCellValueFactory(new PropertyValueFactory<>("title"));
+        priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
+        urlColumn.setCellValueFactory(new PropertyValueFactory<>("url"));
+        postedDateColumn.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
+        portalColumn.setCellValueFactory(new PropertyValueFactory<>("portal"));
 
-        for (TableColumn<Item, ?> column : columns) {
-            switch (column.getText()) {
-                case "Title":
-                    // Create ValueFactory of Item attribute to map to respective column
-                    column.setCellValueFactory(new PropertyValueFactory<>("title"));
-                    break;
-                case "Price":
-                    column.setCellValueFactory(new PropertyValueFactory<>("price"));
-                    break;
-                case "URL":
-                    column.setCellValueFactory(new PropertyValueFactory<>("url"));
+        // Pop up a new windows/browser showing the item when the URL is clicked.
+        urlColumn.setCellFactory(newURLCellFactory());
 
-                    // Pop up a new windows/browser showing the item when the URL is clicked.
-                    column.setCellFactory(newURLCellFactory());
-                    break;
-                case "Posted Date":
-                    column.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
-                    break;
-                case "Portal":
-                    column.setCellValueFactory(new PropertyValueFactory<>("portal"));
-                default:
-                    break;
-            }
-
-            // Sort the result in ascending order on user clicking each column, and sort in descending order when user click again.
-            // Note that after pressing twice, the third click does nothing and resets so that the next click gives ascending sort.
-            column.setSortable(true);
-        }
+        // Sort the result in ascending order on user clicking each column, and sort in descending order when user click again.
+        // Note that after pressing twice, the third click does nothing and resets so that the next click gives ascending sort.
+        this.table.getColumns().forEach(
+            column -> column.setSortable(true)
+        );
 
         // Update table items by and on the change of data in observed list
         currentProducts.addListener((ListChangeListener<Item>) change -> {
