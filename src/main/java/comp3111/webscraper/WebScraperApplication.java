@@ -46,14 +46,12 @@ public class WebScraperApplication extends Application {
     public void start(Stage stage) throws Exception {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource(UI_FILE));
-        VBox root = (VBox) loader.load();
+        VBox root = loader.load();
         Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.setTitle("WebScrapper");
         stage.getProperties().put("hostServices", this.getHostServices());
         stage.show();
-
-
     }
 
     /**

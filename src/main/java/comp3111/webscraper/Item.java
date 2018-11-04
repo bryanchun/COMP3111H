@@ -16,17 +16,19 @@ public class Item {
     /**
      * Default Constructor
      */
-    public Item() {}
+    Item() {
+    }
 
     /**
      * Constructs Item with all fields
-     * @param title The product title
-     * @param price The product price
-     * @param url The product details URL
+     *
+     * @param title     The product title
+     * @param price     The product price
+     * @param url       The product details URL
      * @param createdAt The product creation date
-     * @param portal The name of the portal the product comes from
+     * @param portal    The name of the portal the product comes from
      */
-    public Item(String title, double price, String url, Date createdAt, String portal) {
+    Item(String title, double price, String url, Date createdAt, String portal) {
         this.title = title;
         this.price = price;
         this.url = url;
@@ -34,31 +36,31 @@ public class Item {
         this.portal = portal;
     }
 
-    public String getTitle() {
+    String getTitle() {
         return title;
     }
 
-    public void setTitle(String title) {
+    void setTitle(String title) {
         this.title = title;
     }
 
-    public double getPrice() {
+    double getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    void setPrice(double price) {
         this.price = price;
     }
 
-    public String getUrl() {
+    String getUrl() {
         return url;
     }
 
-    public void setUrl(String url) {
+    void setUrl(String url) {
         this.url = url;
     }
 
-    public String getPortal() {
+    String getPortal() {
         return portal;
     }
 
@@ -70,7 +72,7 @@ public class Item {
         return createdAt;
     }
 
-    public void setCreatedAt(Date createdAt) {
+    void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
 }
