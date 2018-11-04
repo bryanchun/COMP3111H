@@ -99,11 +99,11 @@ public class Controller {
             }
             consoleText.setValue(consoleOutput.toString());
 
-            // Updates isRefineDisabled
-            isRefineDisabled.setValue(newValue.getHasSearchRefined());
-
             // Updates current products
             currentProducts.setAll(newValue.getProducts());
+
+            // Updates isRefineDisabled
+            isRefineDisabled.setValue(newValue.getHasSearchRefined() || currentProducts.size() == 0);
         });
         // Initialize Table factories and listeners
         initTable();
