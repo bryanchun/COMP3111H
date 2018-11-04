@@ -70,12 +70,15 @@ import javax.script.ScriptException;
  */
 public class WebScraper {
 
-    private static final String DEFAULT_URL = "https://newyork.craigslist.org/";
     private static final float USD2HKD = 7.8f;
-    private static final DateFormat iso8061Formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ"); //2017-06-08T15:22:17.000Z
+    private static final DateFormat ISO_8061_FORMATTER = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ"); //2017-06-08T15:22:17.000Z
+    private static final DateFormat CRAIGSLIST_DATETIME_FORMATTER = new SimpleDateFormat("yyyy-MM-dd HH:mm"); //2017-06-08T15:22:17.000Z
+    private static final String PORTAL_CRAIGSLIST = "Craigslist";
+    private static final String PORTAL_CAROUSELL = "Carousell";
 
 
     private WebClient client;
+    private ScriptEngine scriptEngine = new ScriptEngineManager().getEngineByName("nashorn");
 
     /**
      * Default Constructor
@@ -87,7 +90,7 @@ public class WebScraper {
     }
 
     /**
-     * The only method implemented in this class, to scrape web content from the craigslist
+     * Scrapes from all portals
      *
      * @param keyword - the keyword you want to search
      * @return A list of Item that has found. A zero size list is return if nothing is found. Null if any exception (e.g. no connectivity)
@@ -98,7 +101,7 @@ public class WebScraper {
         allItems.addAll(scrapeCraigslist(keyword));
         allItems.addAll(scrapeCarousell(keyword));
 
-        allItems.sort(Comparator.comparing(Item::getPortal));
+        allItems.sort((a, b) -> Boolean.compare(a.getPortal().equals(PORTAL_CRAIGSLIST), b.getPortal().equals(PORTAL_CRAIGSLIST)));
         allItems.sort(Comparator.comparingDouble(Item::getPrice));
 
         return allItems;
@@ -118,23 +121,15 @@ public class WebScraper {
             HtmlPage page = client.getPage(searchURL);
 
             DomNodeList<DomElement> scriptTags = page.getElementsByTagName("script");
-            String appScript = "";
-            for (DomElement scriptTag: scriptTags) {
-                String script = scriptTag.getTextContent();
-                if (script.contains("window.App")) {
-                    appScript = script;
-                    break;
-                }
-            }
+            String appScript = scriptTags.stream().map(DomNode::getTextContent)
+                    .filter(script -> script.contains("window.App")).findFirst().orElse("");
 
             if (!appScript.isEmpty()) {
-                ScriptEngine scriptEngine = new ScriptEngineManager().getEngineByName("nashorn");
                 scriptEngine.eval("var window = {}; "  + appScript);
-                ScriptObjectMirror mirror = (ScriptObjectMirror)  scriptEngine.eval("window.App.context.dispatcher.stores.ProductStore.productsMap");
+                ScriptObjectMirror mirror = (ScriptObjectMirror) scriptEngine.eval("window.App.context.dispatcher.stores.ProductStore.productsMap");
 
-                for (Map.Entry<String, Object> entry : mirror.entrySet()) {
-                    Object o = entry.getValue();
-                    ScriptObjectMirror product = (ScriptObjectMirror) o;
+                for (Map.Entry<String, Object> productObject : mirror.entrySet()) {
+                    ScriptObjectMirror product = (ScriptObjectMirror) productObject.getValue();
 
                     /*
                     id: String
@@ -148,20 +143,15 @@ public class WebScraper {
                         https://hk.carousell.com/p/id
                      */
 
-                    String priceString = ((String) product.get("price")).replaceAll("[HK$,]", "");
-
-                    Item item = new Item();
-                    item.setTitle((String) product.get("title"));
-                    item.setPortal(Item.Portal.Carousell);
-                    item.setPrice(new Double(priceString));
-                    item.setUrl("https://hk.carousell.com/p/" + product.get("id"));
-                    item.setCreatedAt(iso8061Formatter.parse(((String) product.get("timeCreated")).replace("Z", "+0000")));
-
-                    results.add(item);
+                    results.add(new Item(
+                            (String) product.get("title"),
+                            Double.parseDouble(((String) product.get("price")).replaceAll("[HK$,]", "")),
+                            "https://hk.carousell.com/p/" + product.get("id"),
+                            ISO_8061_FORMATTER.parse(((String) product.get("timeCreated")).replace("Z", "+0000")),
+                            PORTAL_CAROUSELL
+                    ));
                 }
             }
-
-
         } catch (IOException | ParseException | ScriptException e) {
             e.printStackTrace();
         }
@@ -179,9 +169,8 @@ public class WebScraper {
         List<Item> results = new ArrayList<>();
 
         try {
-            String searchUrl = DEFAULT_URL + "search/sss?sort=rel&query=" + URLEncoder.encode(keyword, "UTF-8");
+            String searchUrl = "https://newyork.craigslist.org/search/sss?sort=rel&query=" + URLEncoder.encode(keyword, "UTF-8");
             HtmlPage page = client.getPage(searchUrl);
-
 
             List<?> items = page.getByXPath("//li[@class='result-row']");
 
@@ -189,20 +178,21 @@ public class WebScraper {
                 HtmlElement htmlItem = (HtmlElement) item1;
                 HtmlAnchor itemAnchor = htmlItem.getFirstByXPath(".//p[@class='result-info']/a");
                 HtmlElement spanPrice = htmlItem.getFirstByXPath(".//a/span[@class='result-price']");
+                HtmlElement dateElement = htmlItem.getFirstByXPath(".//p[@class='result-info']/time");
 
                 // It is possible that an item doesn't have any price, we set the price to 0.0
                 // in this case
                 String itemPrice = spanPrice == null ? "0.0" : spanPrice.asText();
 
-                Item item = new Item();
-                item.setTitle(itemAnchor.asText());
-                item.setPortal(Item.Portal.Craigslist);
-                item.setUrl(itemAnchor.getHrefAttribute());
-                item.setPrice(Math.round(new Double(itemPrice.replace("$", "")) * USD2HKD * 100.0)/100.0);
-
-                results.add(item);
+                results.add(new Item(
+                        itemAnchor.asText(),
+                        Math.round(Double.parseDouble(itemPrice.replace("$", "")) * USD2HKD * 100.0)/100.0,
+                        itemAnchor.getHrefAttribute(),
+                        CRAIGSLIST_DATETIME_FORMATTER.parse(dateElement.getAttribute("datetime")),
+                        PORTAL_CRAIGSLIST
+                ));
             }
-        } catch (IOException e) {
+        } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
 

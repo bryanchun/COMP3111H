@@ -3,11 +3,16 @@
  */
 package comp3111.webscraper;
 
+
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.collections.ObservableList;
 import javafx.collections.ListChangeListener;
-import javafx.collections.FXCollections;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
@@ -18,7 +23,6 @@ import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.application.HostServices;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -52,12 +56,14 @@ public class Controller {
 
     @FXML
     private Button buttonRefine;
-    
-    private WebScraper scraper;
 
+    private ObservableList<Item> currentProducts = FXCollections.observableArrayList();
+
+    @Deprecated
     private List<Item> result;
+
+    @Deprecated
     private List<Item> refineResult;
-    private ObservableList<Item> obResult;
 
     @FXML
     private VBox root;
@@ -65,10 +71,15 @@ public class Controller {
     private TableView<Item> table;
 
     /**
+     * StringProperty storing text that is shown in the console TextArea
+     */
+    private StringProperty consoleText = new SimpleStringProperty();
+    private BooleanProperty isRefineDisabled = new SimpleBooleanProperty(true);
+
+    /**
      * Default controller
      */
     public Controller() {
-    	scraper = new WebScraper();
     }
 
     /**
@@ -76,29 +87,35 @@ public class Controller {
      */
     @FXML
     private void initialize() {
-        // Initialize and maintain a observable list
-        this.obResult = FXCollections.observableArrayList();
+        textAreaConsole.textProperty().bind(consoleText);
+        buttonRefine.disableProperty().bind(isRefineDisabled);
 
+        // Listener is triggered when SearchRecord::latest is updated
+        SearchRecord.getLatestProperty().addListener((o, oldValue, newValue) -> {
+            // Updates consoleText
+            StringBuilder consoleOutput = new StringBuilder();
+            for (Item item : newValue.getProducts()) {
+                consoleOutput.append(item.getTitle()).append("\t").append(item.getPrice()).append("\t").append(item.getUrl()).append("\n");
+            }
+            consoleText.setValue(consoleOutput.toString());
+
+            // Updates isRefineDisabled
+            isRefineDisabled.setValue(newValue.getHasSearchRefined());
+
+            // Updates current products
+            currentProducts.setAll(newValue.getProducts());
+        });
         // Initialize Table factories and listeners
         initTable();
     }
-
-     /**
+    
+    /**
      * Called when the search button is pressed.
      */
     @FXML
     private void actionSearch() {
     	System.out.println("actionSearch: " + textFieldKeyword.getText());
-    	this.result = scraper.scrape(textFieldKeyword.getText());
-    	StringBuilder output = new StringBuilder();
-    	for (Item item : this.result) {
-    		output.append(item.getTitle()).append("\t").append(item.getPrice()).append("\t").append(item.getUrl()).append("\n");
-    	}
-    	textAreaConsole.setText(output.toString());
-    	buttonRefine.setDisable(false);
-
-    	// Update obResult
-        this.obResult.setAll(this.result);
+    	SearchRecord.newSearch(textFieldKeyword.getText());
     }
 
     /**
@@ -109,28 +126,15 @@ public class Controller {
         String query = textFieldKeyword.getText();
         System.out.println("actionRefineSearch: " + query);
         StringBuilder output = new StringBuilder();
-        this.refineResult = new ArrayList<>();
-        for (Item item : this.result) {
-            if (item.getTitle().contains(query)) {
-                this.refineResult.add(item);
-                output.append(item.getTitle()).append("\t").append(item.getPrice()).append("\t").append(item.getUrl()).append("\n");
-            }
-        }
 
-        textAreaConsole.setText(output.toString());
         //TODO(mcreng): Update all tabs after refining search.
-        buttonRefine.setDisable(true);
-
-        // Update obResult
-        this.obResult.setAll(this.refineResult);
     }
 
     /**
      * Called when the new button is pressed. Very dummy action - print something in the command prompt.
      */
     @FXML
-    private void actionNew()
-    {
+    private void actionNew() {
     	System.out.println("actionNew");
     }
 
@@ -179,9 +183,8 @@ public class Controller {
                 case "Posted Date":
                     column.setCellValueFactory(new PropertyValueFactory("createdAt"));
                     break;
-                // TODO(bryanchun): Fill in Portal column
-//                case "Portal":
-//                    column.setCellFactory(new PropertyValueFactory("portal"));
+                case "Portal":
+                    column.setCellValueFactory(new PropertyValueFactory("portal"));
                 default:
                     break;
             }
@@ -192,10 +195,10 @@ public class Controller {
         }
 
         // Update table items by and on the change of data in observed list
-        this.obResult.addListener((ListChangeListener<Item>) change -> {
-            System.out.println("obresults changed");
+        currentProducts.addListener((ListChangeListener<Item>) change -> {
+            System.out.println("currentProducts updated");
             //System.out.println("Changed on " + change);
-            this.table.setItems(this.obResult);
+            this.table.setItems(currentProducts);
         });
 
         // Make cells not editable

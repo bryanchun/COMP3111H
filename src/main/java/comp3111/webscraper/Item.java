@@ -3,17 +3,36 @@ package comp3111.webscraper;
 
 import java.util.Date;
 
+/**
+ * Represents a product scraped from an online portal
+ */
 public class Item {
-    public enum Portal {
-        Craigslist,
-        Carousell
-    }
-
     private String title;
     private double price;
     private String url;
     private Date createdAt;
-    private Portal portal;
+    private String portal;
+
+    /**
+     * Default Constructor
+     */
+    public Item() {}
+
+    /**
+     * Constructs Item with all fields
+     * @param title The product title
+     * @param price The product price
+     * @param url The product details URL
+     * @param createdAt The product creation date
+     * @param portal The name of the portal the product comes from
+     */
+    public Item(String title, double price, String url, Date createdAt, String portal) {
+        this.title = title;
+        this.price = price;
+        this.url = url;
+        this.createdAt = createdAt;
+        this.portal = portal;
+    }
 
     public String getTitle() {
         return title;
@@ -39,11 +58,11 @@ public class Item {
         this.url = url;
     }
 
-    public Portal getPortal() {
+    public String getPortal() {
         return portal;
     }
 
-    public void setPortal(Portal portal) {
+    public void setPortal(String portal) {
         this.portal = portal;
     }
 
