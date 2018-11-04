@@ -21,7 +21,7 @@ import java.util.ArrayList;
 
 import static org.junit.Assert.*;
 
-public class RefineSearchTest extends ApplicationTest {
+public class ControllerTest extends ApplicationTest {
     private Controller controller;
 
     @Override
