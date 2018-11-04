@@ -1,30 +1,30 @@
 /**
- *
+ * 
  */
 package comp3111.webscraper;
 
 
-import javafx.application.HostServices;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
-import javafx.util.Callback;
+
+import java.util.Date;
+import java.util.List;
 
 
 /**
+ * 
  * @author kevinw
  * <p>
  * <p>
  * Controller class that manage GUI interaction. Please see document about JavaFX for details.
+ * 
  */
 public class Controller {
 
@@ -51,10 +51,27 @@ public class Controller {
 
     private ObservableList<Item> currentProducts = FXCollections.observableArrayList();
 
+    @Deprecated
+    private List<Item> result;
+
+    @Deprecated
+    private List<Item> refineResult;
+
+    // TableTab nodes
     @FXML
-    private VBox root;
+    public VBox root;
     @FXML
-    private TableView<Item> table;
+    public TableView<Item> table;
+    @FXML
+    public TableColumn<Item, String> titleColumn;
+    @FXML
+    public TableColumn<Item, Double> priceColumn;
+    @FXML
+    public TableColumn<Item, String> urlColumn;
+    @FXML
+    public TableColumn<Item, Date> postedDateColumn;
+    @FXML
+    public TableColumn<Item, String> portalColumn;
 
     /**
      * StringProperty storing text that is shown in the console TextArea
@@ -91,8 +108,9 @@ public class Controller {
             // Updates isRefineDisabled
             isRefineDisabled.setValue(newValue.getHasSearchRefined() || currentProducts.size() == 0);
         });
+
         // Initialize Table factories and listeners
-        initTable();
+        new TableTab(this).initTable(currentProducts);
     }
 
     /**
@@ -120,78 +138,6 @@ public class Controller {
     @FXML
     private void actionNew() {
         System.out.println("actionNew");
-    }
-
-    private <S,T> Callback<TableColumn<S,T>, TableCell<S,T>> newURLCellFactory() {
-        return param -> new TableCell<S,T>(){
-            {
-                this.setOnMouseClicked(event -> openURL(this.getText()));
-            }
-
-            @Override
-            protected void updateItem(T t, boolean bln) {
-                super.updateItem(t, bln);
-                setText(t!= null ? t.toString() : "");
-            }
-        };
-    };
-
-    /**
-     * Called when Controller initialize, instead of when Table Tab is clicked.
-     */
-    private void initTable() {
-        // Initialize mapping between table column text and Item attributes for setting list of Items to table
-        ObservableList<TableColumn<Item, ?>> columns = this.table.getColumns();
-
-        for (TableColumn<Item, ?> column : columns) {
-            switch (column.getText()) {
-                case "Title":
-                    // Create ValueFactory of Item attribute to map to respective column
-                    column.setCellValueFactory(new PropertyValueFactory<>("title"));
-                    break;
-                case "Price":
-                    column.setCellValueFactory(new PropertyValueFactory<>("price"));
-                    break;
-                case "URL":
-                    column.setCellValueFactory(new PropertyValueFactory<>("url"));
-
-                    // Pop up a new windows/browser showing the item when the URL is clicked.
-                    column.setCellFactory(newURLCellFactory());
-                    break;
-                case "Posted Date":
-                    column.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
-                    break;
-                case "Portal":
-                    column.setCellValueFactory(new PropertyValueFactory<>("portal"));
-                default:
-                    break;
-            }
-
-            // Sort the result in ascending order on user clicking each column, and sort in descending order when user click again.
-            // Note that after pressing twice, the third click does nothing and resets so that the next click gives ascending sort.
-            column.setSortable(true);
-        }
-
-        // Update table items by and on the change of data in observed list
-        currentProducts.addListener((ListChangeListener<Item>) change -> {
-            System.out.println("currentProducts updated");
-            //System.out.println("Changed on " + change);
-            this.table.setItems(currentProducts);
-        });
-
-        // Make cells not editable
-        this.table.setEditable(false);
-    }
-
-    /**
-     * Helper function for opening a URL from a browser
-     *
-     * @param url
-     */
-    private void openURL(String url) {
-        Stage stage = (Stage) root.getScene().getWindow();
-        HostServices hostServices = (HostServices) stage.getProperties().get("hostServices");
-        hostServices.showDocument(url);
     }
 }
 
