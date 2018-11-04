@@ -36,6 +36,72 @@ public class SearchRecord {
     private boolean hasSearchRefined = false;
 
     /**
+     * Default Constructor
+     */
+    SearchRecord() {
+    }
+
+    /**
+     * Constructs a SearchRecord with supplied keyword. Then the constructed instance would initialize a search
+     * immediately.
+     *
+     * @param keyword The search keyword
+     */
+    private SearchRecord(String keyword) {
+        this.search(keyword);
+    }
+
+    /**
+     * Constructs a SearchRecord with supplied refine keyword. The new instance would then have the refined records.
+     *
+     * @param record  The record the refine search is based on
+     * @param keyword The refine keyword
+     */
+    private SearchRecord(SearchRecord record, String keyword) {
+        this.keyword = keyword;
+        this.hasSearchRefined = true;
+        this.products = record.products.stream().filter(item -> item.getTitle().contains(keyword)).collect(Collectors.toList());
+    }
+
+    /**
+     * Adds a new search
+     *
+     * @param keyword A search keyword
+     */
+    static void newSearch(String keyword) {
+        pushHistory(new SearchRecord(keyword));
+    }
+
+    /**
+     * Pushes a new SearchRecord to allSearchRecords so it would become the latest SearchRecord
+     *
+     * @param searchRecord A new SearchRecord
+     */
+    private static void pushHistory(SearchRecord searchRecord) {
+        allSearchRecords.add(0, searchRecord);
+    }
+
+    /**
+     * Initialize a search on the target websites.
+     *
+     * @param keyword The search keyword
+     */
+    private void search(String keyword) {
+        this.keyword = keyword;
+        products = webScraper.scrape(keyword);
+    }
+
+    /**
+     * Adds a new refine search
+     *
+     * @param keyword Refine keyword
+     */
+    static void newRefineSearch(String keyword) {
+        SearchRecord latest = SearchRecord.getLatestProperty().get();
+        pushHistory(new SearchRecord(latest, keyword));
+    }
+
+    /**
      * Saves all SearchRecords
      *
      * @param path The path where the save file is written
@@ -54,66 +120,12 @@ public class SearchRecord {
     }
 
     /**
-     * Pushes a new SearchRecord to allSearchRecords so it would become the latest SearchRecord
-     *
-     * @param searchRecord A new SearchRecord
-     */
-    public static void pushHistory(SearchRecord searchRecord) {
-        allSearchRecords.add(0, searchRecord);
-    }
-
-    /**
-     * Adds a new search
-     *
-     * @param keyword A search keyword
-     */
-    public static void newSearch(String keyword) {
-        pushHistory(new SearchRecord(keyword));
-    }
-
-    /**
-     * Adds a new refine search
-     *
-     * @param keyword Refine keyword
-     */
-    public static void newRefineSearch(String keyword) {
-        SearchRecord latest = SearchRecord.getLatestProperty().get();
-        pushHistory(new SearchRecord(latest, keyword));
-    }
-
-
-    /**
      * Retrieves the latest added SearchRecord in history
      *
      * @return The latest SearchRecord
      */
-    public static ObjectProperty<SearchRecord> getLatestProperty() {
+    static ObjectProperty<SearchRecord> getLatestProperty() {
         return latest;
-    }
-
-    /**
-     * Default Constructor
-     */
-    public SearchRecord() {
-    }
-
-    /**
-     * Constructs a SearchRecord with supplied keyword. Then the constructed instance would initialize a search
-     * immediately.
-     *
-     * @param keyword The search keyword
-     */
-    public SearchRecord(String keyword) {
-        this.search(keyword);
-    }
-
-    /**
-     * Constructs a SearchRecord with supplied refine keyword. The new instance would then have the refined records.
-     */
-    SearchRecord(SearchRecord record, String keyword) {
-        this.keyword = keyword;
-        this.hasSearchRefined = true;
-        this.products = record.products.stream().filter(item -> item.getTitle().contains(keyword)).collect(Collectors.toList());
     }
 
     /**
@@ -130,19 +142,10 @@ public class SearchRecord {
      *
      * @param keyword The new search keyword
      */
-    public void setKeyword(String keyword) {
+    void setKeyword(String keyword) {
         this.keyword = keyword;
     }
 
-    /**
-     * Initialize a search on the target websites.
-     *
-     * @param keyword The search keyword
-     */
-    public void search(String keyword) {
-        this.keyword = keyword;
-        products = webScraper.scrape(keyword);
-    }
 
     /**
      * Returns whether the SearchRecord has already refined the search results.
