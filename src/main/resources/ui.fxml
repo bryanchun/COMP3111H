@@ -27,7 +27,7 @@
 
 <!-- this line specific which class is your controller - comp3111.webscraper.Controller. Thus all events shall be handled by this class -->
 
-<VBox prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="comp3111.webscraper.Controller">
+<VBox prefHeight="400.0" prefWidth="640.0" fx:id="root" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="comp3111.webscraper.Controller">
   <children>
   
   	<!-- This is your MenuBar -->
@@ -68,7 +68,7 @@
                   </AnchorPane>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                      <children>
-                        <TabPane layoutX="55.0" layoutY="52.0" prefHeight="373.0" prefWidth="437.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                        <TabPane fx:id="tabpane" layoutX="55.0" layoutY="52.0" prefHeight="373.0" prefWidth="437.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                           <tabs>
                             <Tab text="Console">
                                  <content>
@@ -103,12 +103,13 @@
                                 <content>
                                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                        <children>
-                                          <TableView AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                          <TableView fx:id="table" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                             <columns>
                                               <TableColumn editable="false" prefWidth="154.0" text="Title" />
                                               <TableColumn editable="false" prefWidth="90.0" text="Price" />
                                                 <TableColumn editable="false" prefWidth="78.0" text="URL" />
                                                 <TableColumn editable="false" prefWidth="88.0" text="Posted Date" />
+                                                <TableColumn editable="false" prefWidth="88.0" text="Portal" />
                                             </columns>
                                           </TableView>
                                        </children>
