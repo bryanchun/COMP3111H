@@ -85,11 +85,11 @@ public class Controller {
             }
             consoleText.setValue(consoleOutput.toString());
 
-            // Updates isRefineDisabled
-            isRefineDisabled.setValue(newValue.getHasSearchRefined());
-
             // Updates current products
             currentProducts.setAll(newValue.getProducts());
+
+            // Updates isRefineDisabled
+            isRefineDisabled.setValue(newValue.getHasSearchRefined() || currentProducts.size() == 0);
         });
         // Initialize Table factories and listeners
         initTable();
@@ -122,53 +122,47 @@ public class Controller {
         System.out.println("actionNew");
     }
 
+    private <S,T> Callback<TableColumn<S,T>, TableCell<S,T>> newURLCellFactory() {
+        return param -> new TableCell<S,T>(){
+            {
+                this.setOnMouseClicked(event -> openURL(this.getText()));
+            }
+
+            @Override
+            protected void updateItem(T t, boolean bln) {
+                super.updateItem(t, bln);
+                setText(t!= null ? t.toString() : "");
+            }
+        };
+    };
+
     /**
      * Called when Controller initialize, instead of when Table Tab is clicked.
      */
     private void initTable() {
         // Initialize mapping between table column text and Item attributes for setting list of Items to table
         ObservableList<TableColumn<Item, ?>> columns = this.table.getColumns();
-        for (TableColumn column : columns) {
+
+        for (TableColumn<Item, ?> column : columns) {
             switch (column.getText()) {
                 case "Title":
                     // Create ValueFactory of Item attribute to map to respective column
-                    column.setCellValueFactory(new PropertyValueFactory<TableRow, Item>("title"));
+                    column.setCellValueFactory(new PropertyValueFactory<>("title"));
                     break;
                 case "Price":
-                    column.setCellValueFactory(new PropertyValueFactory("price"));
+                    column.setCellValueFactory(new PropertyValueFactory<>("price"));
                     break;
                 case "URL":
-                    column.setCellValueFactory(new PropertyValueFactory("url"));
+                    column.setCellValueFactory(new PropertyValueFactory<>("url"));
 
                     // Pop up a new windows/browser showing the item when the URL is clicked.
-                    column.setCellFactory(new Callback<TableColumn, TableCell>() {
-                        @Override
-                        public TableCell call(TableColumn param) {
-
-                            // Setup the cell that is will be handled
-                            final TableCell cell = new TableCell() {
-                                @Override
-                                protected void updateItem(Object t, boolean bln) {
-                                    super.updateItem(t, bln);
-                                    if (t != null) {
-                                        setText(t.toString());
-                                    }
-                                }
-                            };
-
-                            // Called when clicked a URL cell
-                            cell.setOnMouseClicked(event ->
-                                    openURL(cell.getText())
-                            );
-                            return cell;
-                        }
-                    });
+                    column.setCellFactory(newURLCellFactory());
                     break;
                 case "Posted Date":
-                    column.setCellValueFactory(new PropertyValueFactory("createdAt"));
+                    column.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
                     break;
                 case "Portal":
-                    column.setCellValueFactory(new PropertyValueFactory("portal"));
+                    column.setCellValueFactory(new PropertyValueFactory<>("portal"));
                 default:
                     break;
             }
