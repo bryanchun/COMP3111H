@@ -1,16 +1,17 @@
 package comp3111.webscraper;
 
-import javafx.beans.property.*;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * SearchRecord stores a search that contains the keyword used for the search and the results of the search.
- *
  * It also provides a save and load function to read and write history from and into files.
  */
 public class SearchRecord {
@@ -54,6 +55,7 @@ public class SearchRecord {
 
     /**
      * Pushes a new SearchRecord to allSearchRecords so it would become the latest SearchRecord
+     *
      * @param searchRecord A new SearchRecord
      */
     public static void pushHistory(SearchRecord searchRecord) {
@@ -62,6 +64,7 @@ public class SearchRecord {
 
     /**
      * Adds a new search
+     *
      * @param keyword A search keyword
      */
     public static void newSearch(String keyword) {
@@ -69,7 +72,19 @@ public class SearchRecord {
     }
 
     /**
+     * Adds a new refine search
+     *
+     * @param keyword Refine keyword
+     */
+    public static void newRefineSearch(String keyword) {
+        SearchRecord latest = SearchRecord.getLatestProperty().get();
+        pushHistory(new SearchRecord(latest, keyword));
+    }
+
+
+    /**
      * Retrieves the latest added SearchRecord in history
+     *
      * @return The latest SearchRecord
      */
     public static ObjectProperty<SearchRecord> getLatestProperty() {
@@ -79,7 +94,8 @@ public class SearchRecord {
     /**
      * Default Constructor
      */
-    public SearchRecord() {}
+    public SearchRecord() {
+    }
 
     /**
      * Constructs a SearchRecord with supplied keyword. Then the constructed instance would initialize a search
@@ -92,15 +108,26 @@ public class SearchRecord {
     }
 
     /**
+     * Constructs a SearchRecord with supplied refine keyword. The new instance would then have the refined records.
+     */
+    SearchRecord(SearchRecord record, String keyword) {
+        this.keyword = keyword;
+        this.hasSearchRefined = true;
+        this.products = record.products.stream().filter(item -> item.getTitle().contains(keyword)).collect(Collectors.toList());
+    }
+
+    /**
      * Returns the search keyword
+     *
      * @return The search keyword
      */
-    public String getKeyword() {
+    String getKeyword() {
         return keyword;
     }
 
     /**
      * Manually sets the search keyword, for when the search is refined.
+     *
      * @param keyword The new search keyword
      */
     public void setKeyword(String keyword) {
@@ -109,6 +136,7 @@ public class SearchRecord {
 
     /**
      * Initialize a search on the target websites.
+     *
      * @param keyword The search keyword
      */
     public void search(String keyword) {
@@ -117,27 +145,20 @@ public class SearchRecord {
     }
 
     /**
-     * Refines the search in this SearchRecord by using a new keyword as a filter.
-     * @param refineKeyword The additional search keyword to refine the search results.
-     */
-    public void refine(String refineKeyword) {
-        hasSearchRefined = true;
-        // Todo implement refine
-    }
-
-    /**
      * Returns whether the SearchRecord has already refined the search results.
+     *
      * @return A boolean value indicating if the search results is refined.
      */
-    public boolean getHasSearchRefined() {
+    boolean getHasSearchRefined() {
         return hasSearchRefined;
     }
 
     /**
      * Returns an ObservableList of the Items search results.
+     *
      * @return Observable products list
      */
-    public List<Item> getProducts() {
+    List<Item> getProducts() {
         return products;
     }
 
