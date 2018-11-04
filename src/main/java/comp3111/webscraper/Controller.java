@@ -111,9 +111,7 @@ public class Controller {
     private void actionRefineSearch() {
         String query = textFieldKeyword.getText();
         System.out.println("actionRefineSearch: " + query);
-        StringBuilder output = new StringBuilder();
-
-        //TODO(mcreng): Update all tabs after refining search.
+        SearchRecord.newRefineSearch(query);
     }
 
     /**
