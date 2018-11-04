@@ -16,7 +16,7 @@ public class Item {
     /**
      * Default Constructor
      */
-    Item() {
+    public Item() {
     }
 
     /**
@@ -28,7 +28,7 @@ public class Item {
      * @param createdAt The product creation date
      * @param portal    The name of the portal the product comes from
      */
-    Item(String title, double price, String url, Date createdAt, String portal) {
+    public Item(String title, double price, String url, Date createdAt, String portal) {
         this.title = title;
         this.price = price;
         this.url = url;
@@ -36,31 +36,31 @@ public class Item {
         this.portal = portal;
     }
 
-    String getTitle() {
+    public String getTitle() {
         return title;
     }
 
-    void setTitle(String title) {
+    public void setTitle(String title) {
         this.title = title;
     }
 
-    double getPrice() {
+    public double getPrice() {
         return price;
     }
 
-    void setPrice(double price) {
+    public void setPrice(double price) {
         this.price = price;
     }
 
-    String getUrl() {
+    public String getUrl() {
         return url;
     }
 
-    void setUrl(String url) {
+    public void setUrl(String url) {
         this.url = url;
     }
 
-    String getPortal() {
+    public String getPortal() {
         return portal;
     }
 
@@ -72,7 +72,7 @@ public class Item {
         return createdAt;
     }
 
-    void setCreatedAt(Date createdAt) {
+    public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
 }
