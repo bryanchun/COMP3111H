@@ -21,28 +21,28 @@ import java.util.List;
 /**
  * 
  * @author kevinw
- *
- *
+ * <p>
+ * <p>
  * Controller class that manage GUI interaction. Please see document about JavaFX for details.
  * 
  */
 public class Controller {
 
-    @FXML 
-    private Label labelCount; 
+    @FXML
+    private Label labelCount;
 
-    @FXML 
-    private Label labelPrice; 
+    @FXML
+    private Label labelPrice;
 
-    @FXML 
-    private Hyperlink labelMin; 
+    @FXML
+    private Hyperlink labelMin;
 
-    @FXML 
-    private Hyperlink labelLatest; 
+    @FXML
+    private Hyperlink labelLatest;
 
     @FXML
     private TextField textFieldKeyword;
-    
+
     @FXML
     private TextArea textAreaConsole;
 
@@ -112,14 +112,14 @@ public class Controller {
         // Initialize Table factories and listeners
         new TableTab(this).initTable(currentProducts);
     }
-    
+
     /**
      * Called when the search button is pressed.
      */
     @FXML
     private void actionSearch() {
-    	System.out.println("actionSearch: " + textFieldKeyword.getText());
-    	SearchRecord.newSearch(textFieldKeyword.getText());
+        System.out.println("actionSearch: " + textFieldKeyword.getText());
+        SearchRecord.newSearch(textFieldKeyword.getText());
     }
 
     /**
@@ -129,9 +129,7 @@ public class Controller {
     private void actionRefineSearch() {
         String query = textFieldKeyword.getText();
         System.out.println("actionRefineSearch: " + query);
-        StringBuilder output = new StringBuilder();
-
-        //TODO(mcreng): Update all tabs after refining search.
+        SearchRecord.newRefineSearch(query);
     }
 
     /**
@@ -139,7 +137,7 @@ public class Controller {
      */
     @FXML
     private void actionNew() {
-    	System.out.println("actionNew");
+        System.out.println("actionNew");
     }
 }
 

@@ -1,12 +1,5 @@
 package comp3111.webscraper;
 
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.*;
 import jdk.nashorn.api.scripting.ScriptObjectMirror;
@@ -14,6 +7,15 @@ import jdk.nashorn.api.scripting.ScriptObjectMirror;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -83,7 +85,7 @@ public class WebScraper {
     /**
      * Default Constructor
      */
-    public WebScraper() {
+    WebScraper() {
         client = new WebClient();
         client.getOptions().setCssEnabled(false);
         client.getOptions().setJavaScriptEnabled(false);
@@ -95,7 +97,7 @@ public class WebScraper {
      * @param keyword - the keyword you want to search
      * @return A list of Item that has found. A zero size list is return if nothing is found. Null if any exception (e.g. no connectivity)
      */
-    public List<Item> scrape(String keyword) {
+    List<Item> scrape(String keyword) {
 
         List<Item> allItems = new ArrayList<>();
         allItems.addAll(scrapeCraigslist(keyword));
@@ -125,7 +127,7 @@ public class WebScraper {
                     .filter(script -> script.contains("window.App")).findFirst().orElse("");
 
             if (!appScript.isEmpty()) {
-                scriptEngine.eval("var window = {}; "  + appScript);
+                scriptEngine.eval("var window = {}; " + appScript);
                 ScriptObjectMirror mirror = (ScriptObjectMirror) scriptEngine.eval("window.App.context.dispatcher.stores.ProductStore.productsMap");
 
                 for (Map.Entry<String, Object> productObject : mirror.entrySet()) {
@@ -186,7 +188,7 @@ public class WebScraper {
 
                 results.add(new Item(
                         itemAnchor.asText(),
-                        Math.round(Double.parseDouble(itemPrice.replace("$", "")) * USD2HKD * 100.0)/100.0,
+                        Math.round(Double.parseDouble(itemPrice.replace("$", "")) * USD2HKD * 100.0) / 100.0,
                         itemAnchor.getHrefAttribute(),
                         CRAIGSLIST_DATETIME_FORMATTER.parse(dateElement.getAttribute("datetime")),
                         PORTAL_CRAIGSLIST
