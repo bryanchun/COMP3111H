@@ -13,13 +13,9 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
-import java.util.List;
-
 
 /**
  * @author kevinw
- * <p>
- * <p>
  * Controller class that manage GUI interaction. Please see document about JavaFX for details.
  */
 public class Controller {
@@ -46,12 +42,6 @@ public class Controller {
     private Button buttonRefine;
 
     private ObservableList<Item> currentProducts = FXCollections.observableArrayList();
-
-    @Deprecated
-    private List<Item> result;
-
-    @Deprecated
-    private List<Item> refineResult;
 
     /**
      * StringProperty storing text that is shown in the console TextArea
