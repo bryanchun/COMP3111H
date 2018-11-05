@@ -6,6 +6,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
  * SearchRecord stores a search that contains the keyword used for the search and the results of the search.
  * It also provides a save and load function to read and write history from and into files.
  */
-public class SearchRecord {
+public class SearchRecord implements Serializable {
     private static final int MAX_HISTORY_SIZE = 5;
     private static final ObservableList<SearchRecord> allSearchRecords = FXCollections.observableArrayList();
     private static final ObjectProperty<SearchRecord> latest = new SimpleObjectProperty<>();
@@ -107,7 +108,15 @@ public class SearchRecord {
      * @param path The path where the save file is written
      */
     public static void save(String path) {
-        // Todo implement save
+        System.out.println("Saving to " + path);
+        try {
+            FileOutputStream fos = new FileOutputStream(path);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(new ArrayList<>(allSearchRecords));
+            oos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -116,7 +125,21 @@ public class SearchRecord {
      * @param path The path where the save file is loaded
      */
     public static void load(String path) {
-        // Todo implement load
+        System.out.println("Loading from " + path);
+        try {
+            FileInputStream fis = new FileInputStream(path);
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            Object obj = ois.readObject();
+            ArrayList<?> genList = (ArrayList<?>) obj;
+            ArrayList<SearchRecord> list = new ArrayList<>();
+            list.clear();
+            for (Object x : genList) {
+                list.add((SearchRecord) x);
+            }
+            allSearchRecords.setAll(list);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**

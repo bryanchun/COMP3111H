@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package comp3111.webscraper;
 
@@ -13,18 +13,18 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 
+import java.io.File;
 import java.util.Date;
 import java.util.List;
 
 
 /**
- * 
  * @author kevinw
  * <p>
  * <p>
  * Controller class that manage GUI interaction. Please see document about JavaFX for details.
- * 
  */
 public class Controller {
 
@@ -130,6 +130,40 @@ public class Controller {
         String query = textFieldKeyword.getText();
         System.out.println("actionRefineSearch: " + query);
         SearchRecord.newRefineSearch(query);
+    }
+
+    @FXML
+    private void actionLoad() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open Resource File");
+        FileChooser.ExtensionFilter fileExtensions =
+                new FileChooser.ExtensionFilter("Data", "*.dat");
+        fileChooser.getExtensionFilters().add(fileExtensions);
+        File file = fileChooser.showOpenDialog(root.getScene().getWindow());
+        try {
+            SearchRecord.load(file.getPath());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Called when save button is pressed, prompts a file chooser and saves the file.
+     */
+    @FXML
+    private void actionSave() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Resource File");
+        FileChooser.ExtensionFilter fileExtensions =
+                new FileChooser.ExtensionFilter("Data", "*.dat");
+        fileChooser.setInitialFileName("record.dat");
+        fileChooser.getExtensionFilters().add(fileExtensions);
+        File file = fileChooser.showSaveDialog(root.getScene().getWindow());
+        try {
+            SearchRecord.save(file.getPath());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
