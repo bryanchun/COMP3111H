@@ -48,6 +48,7 @@ public class WebScraperApplication extends Application {
         loader.setLocation(getClass().getResource(UI_FILE));
         VBox root = loader.load();
         Scene scene = new Scene(root);
+        scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
         stage.setScene(scene);
         stage.setTitle("WebScrapper");
         stage.getProperties().put("hostServices", this.getHostServices());

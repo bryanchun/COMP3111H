@@ -25,7 +25,7 @@ public class SearchRecord {
         allSearchRecords.addListener((ListChangeListener<SearchRecord>) listener -> {
             if (listener.next() && listener.wasAdded() && allSearchRecords.size() > MAX_HISTORY_SIZE) {
                 //Remove old history
-                allSearchRecords.remove(MAX_HISTORY_SIZE - 1, allSearchRecords.size());
+                allSearchRecords.remove(MAX_HISTORY_SIZE, allSearchRecords.size());
             }
             latest.set(allSearchRecords.get(0));
         });
@@ -165,4 +165,7 @@ public class SearchRecord {
         return products;
     }
 
+    public static ObservableList<SearchRecord> getAllSearchRecords() {
+        return allSearchRecords;
+    }
 }
