@@ -28,7 +28,7 @@ public class SearchRecord implements Serializable {
                 //Remove old history
                 allSearchRecords.remove(MAX_HISTORY_SIZE, allSearchRecords.size());
             }
-            latest.set(allSearchRecords.get(0));
+            latest.set(allSearchRecords.size() > 0 ? allSearchRecords.get(0) : null);
         });
     }
 
@@ -50,6 +50,19 @@ public class SearchRecord implements Serializable {
      */
     private SearchRecord(String keyword) {
         this.search(keyword);
+    }
+
+    /**
+     * Constructs a SearchRecord with supplied attributes.
+     *
+     * @param keyword          Search keyword
+     * @param products         Search product list
+     * @param hasSearchRefined Whether a refine search is conducted
+     */
+    SearchRecord(String keyword, List<Item> products, Boolean hasSearchRefined) {
+        this.keyword = keyword;
+        this.products = products;
+        this.hasSearchRefined = hasSearchRefined;
     }
 
     /**
@@ -78,7 +91,7 @@ public class SearchRecord implements Serializable {
      *
      * @param searchRecord A new SearchRecord
      */
-    private static void pushHistory(SearchRecord searchRecord) {
+    static void pushHistory(SearchRecord searchRecord) {
         allSearchRecords.add(0, searchRecord);
     }
 

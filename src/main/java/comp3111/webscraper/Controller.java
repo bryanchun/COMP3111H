@@ -101,14 +101,16 @@ public class Controller {
 
         // Listener is triggered when SearchRecord::latest is updated
         SearchRecord.getLatestProperty().addListener((o, oldValue, newValue) -> {
-            // Updates consoleText
-            consoleText.setValue(generateItemsConsoleOutput(newValue.getProducts()));
+            if (newValue != null) {
+                // Updates consoleText
+                consoleText.setValue(generateItemsConsoleOutput(newValue.getProducts()));
 
-            // Updates current products
-            currentProducts.setAll(newValue.getProducts());
+                // Updates current products
+                currentProducts.setAll(newValue.getProducts());
 
-            // Updates isRefineDisabled
-            isRefineDisabled.setValue(newValue.getHasSearchRefined() || currentProducts.size() == 0);
+                // Updates isRefineDisabled
+                isRefineDisabled.setValue(newValue.getHasSearchRefined() || currentProducts.size() == 0);
+            }
         });
 
         // Initialize Table factories and listeners
