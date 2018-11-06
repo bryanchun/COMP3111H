@@ -79,6 +79,8 @@ public class Controller {
      */
     public StringProperty consoleText = new SimpleStringProperty();
     private BooleanProperty isRefineDisabled = new SimpleBooleanProperty(true);
+    private Boolean loadingFile = false;
+    private String loadingFilename = "";
 
 
     public static String generateItemsConsoleOutput(List<Item> products) {
@@ -103,8 +105,8 @@ public class Controller {
         SearchRecord.getLatestProperty().addListener((o, oldValue, newValue) -> {
             if (newValue != null) {
                 // Updates consoleText
-                consoleText.setValue(generateItemsConsoleOutput(newValue.getProducts()));
-
+                consoleText.setValue((loadingFile ? "--Data Loading from " + loadingFilename + "--\n" : "") + generateItemsConsoleOutput(newValue.getProducts()));
+                loadingFile = false;
                 // Updates current products
                 currentProducts.setAll(newValue.getProducts());
 
@@ -150,9 +152,12 @@ public class Controller {
                 new FileChooser.ExtensionFilter("Data", "*.dat");
         fileChooser.getExtensionFilters().add(fileExtensions);
         File file = fileChooser.showOpenDialog(root.getScene().getWindow());
+        loadingFile = true;
+        loadingFilename = file.getPath();
         try {
             SearchRecord.load(file.getPath());
         } catch (Exception e) {
+            loadingFile = false;
             e.printStackTrace();
         }
     }

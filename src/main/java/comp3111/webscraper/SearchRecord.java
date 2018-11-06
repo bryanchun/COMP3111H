@@ -137,22 +137,18 @@ public class SearchRecord implements Serializable {
      *
      * @param path The path where the save file is loaded
      */
-    public static void load(String path) {
+    public static void load(String path) throws Exception {
         System.out.println("Loading from " + path);
-        try {
-            FileInputStream fis = new FileInputStream(path);
-            ObjectInputStream ois = new ObjectInputStream(fis);
-            Object obj = ois.readObject();
-            ArrayList<?> genList = (ArrayList<?>) obj;
-            ArrayList<SearchRecord> list = new ArrayList<>();
-            list.clear();
-            for (Object x : genList) {
-                list.add((SearchRecord) x);
-            }
-            allSearchRecords.setAll(list);
-        } catch (Exception e) {
-            e.printStackTrace();
+        FileInputStream fis = new FileInputStream(path);
+        ObjectInputStream ois = new ObjectInputStream(fis);
+        Object obj = ois.readObject();
+        ArrayList<?> genList = (ArrayList<?>) obj;
+        ArrayList<SearchRecord> list = new ArrayList<>();
+        list.clear();
+        for (Object x : genList) {
+            list.add((SearchRecord) x);
         }
+        allSearchRecords.setAll(list);
     }
 
     /**
