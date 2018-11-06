@@ -4,13 +4,11 @@
 package comp3111.webscraper;
 
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.chart.AreaChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -18,6 +16,7 @@ import javafx.stage.FileChooser;
 import java.io.File;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 /**
@@ -51,12 +50,6 @@ public class Controller {
 
     private ObservableList<Item> currentProducts = FXCollections.observableArrayList();
 
-    @Deprecated
-    private List<Item> result;
-
-    @Deprecated
-    private List<Item> refineResult;
-
     // TableTab nodes
     @FXML
     public VBox root;
@@ -73,11 +66,24 @@ public class Controller {
     @FXML
     public TableColumn<Item, String> portalColumn;
 
+    // TrendTab elements
+    @FXML
+    public ComboBox<SearchRecord> trendCombo;
+    @FXML
+    public AreaChart<String, Double> trendAreaChart;
+
+    public ObjectProperty<SearchRecord> trendSelected = new SimpleObjectProperty<>();
+
     /**
      * StringProperty storing text that is shown in the console TextArea
      */
-    private StringProperty consoleText = new SimpleStringProperty();
+    public StringProperty consoleText = new SimpleStringProperty();
     private BooleanProperty isRefineDisabled = new SimpleBooleanProperty(true);
+
+
+    public static String generateItemsConsoleOutput(List<Item> products) {
+        return products.stream().map(item -> item.getTitle() + "\t" + item.getPrice() + "\t" + item.getUrl() + "\n").collect(Collectors.joining());
+    }
 
     /**
      * Default controller
@@ -96,11 +102,7 @@ public class Controller {
         // Listener is triggered when SearchRecord::latest is updated
         SearchRecord.getLatestProperty().addListener((o, oldValue, newValue) -> {
             // Updates consoleText
-            StringBuilder consoleOutput = new StringBuilder();
-            for (Item item : newValue.getProducts()) {
-                consoleOutput.append(item.getTitle()).append("\t").append(item.getPrice()).append("\t").append(item.getUrl()).append("\n");
-            }
-            consoleText.setValue(consoleOutput.toString());
+            consoleText.setValue(generateItemsConsoleOutput(newValue.getProducts()));
 
             // Updates current products
             currentProducts.setAll(newValue.getProducts());
@@ -111,6 +113,9 @@ public class Controller {
 
         // Initialize Table factories and listeners
         new TableTab(this).initTable(currentProducts);
+
+        // Initializes TrendTab
+        new TrendTab(this);
     }
 
     /**
@@ -118,8 +123,11 @@ public class Controller {
      */
     @FXML
     private void actionSearch() {
-        System.out.println("actionSearch: " + textFieldKeyword.getText());
-        SearchRecord.newSearch(textFieldKeyword.getText());
+        String query = textFieldKeyword.getText().trim();
+        if (!query.isEmpty()) {
+            System.out.println("actionSearch: " + query);
+            SearchRecord.newSearch(query);
+        }
     }
 
     /**
