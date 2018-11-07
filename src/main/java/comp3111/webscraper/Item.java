@@ -1,12 +1,13 @@
 package comp3111.webscraper;
 
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * Represents a product scraped from an online portal
  */
-public class Item {
+public class Item implements Serializable {
     private String title;
     private double price;
     private String url;

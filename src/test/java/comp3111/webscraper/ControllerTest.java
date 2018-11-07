@@ -15,9 +15,13 @@ import org.junit.Test;
 import org.testfx.api.FxToolkit;
 import org.testfx.framework.junit.ApplicationTest;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -149,5 +153,62 @@ public class ControllerTest extends ApplicationTest {
         //TODO(bryannchun): click on TableCell to test openURL
         //TODO(bryannchun): click on TableColumn label to test sorting
 
+    }
+
+    @Test
+    public void testSaveLoadRecord() throws Exception {
+        SearchRecord.getAllSearchRecords().clear();
+        // Create a new search record
+        SearchRecord searchRecord = new SearchRecord();
+
+        // Using reflection to access the private attributes
+        Field keyword = SearchRecord.class.getDeclaredField("keyword");
+        keyword.setAccessible(true);
+        Field hasSearchRefined = SearchRecord.class.getDeclaredField("hasSearchRefined");
+        hasSearchRefined.setAccessible(true);
+        Field products = SearchRecord.class.getDeclaredField("products");
+        products.setAccessible(true);
+
+        // Set keyword and hasSearchRecord
+        keyword.set(searchRecord, "iPhone");
+        hasSearchRefined.set(searchRecord, false);
+
+        // Construct new Item to feed into products
+        Item item = new Item();
+        item.setTitle("iPhone 6 16GB");
+        products.set(searchRecord, Collections.singletonList(item));
+
+        // Push the created searchRecord
+        Method pushHistory = SearchRecord.class.getDeclaredMethod("pushHistory", SearchRecord.class);
+        pushHistory.setAccessible(true);
+        pushHistory.invoke(null, searchRecord);
+
+        // Save the record
+        String pwd = Paths.get(".").toAbsolutePath().normalize().toString();
+        String filename = pwd + "/1.dat";
+        SearchRecord.save(filename);
+
+        // Create a new search record
+        SearchRecord searchRecord2 = new SearchRecord();
+        Item item2 = new Item();
+        item2.setTitle("iPhone 7 32GB");
+        products.set(searchRecord2, Collections.singletonList(item2));
+        pushHistory.invoke(null, searchRecord2);
+
+        // Check if we have two records
+        Field allSearchRecords = SearchRecord.class.getDeclaredField("allSearchRecords");
+        allSearchRecords.setAccessible(true);
+        assertEquals(((List<?>) allSearchRecords.get(null)).size(), 2);
+
+        // Load the saved record
+        SearchRecord.load(filename);
+        // Check if we have one records
+        assertEquals(((List<?>) allSearchRecords.get(null)).size(), 1);
+        // Check if it is the first item
+        assertEquals(SearchRecord.getLatestProperty().get().getProducts().get(0).getTitle(), item.getTitle());
+
+        // Delete the generated file
+        File file = new File(filename);
+        assertTrue(file.delete());
     }
 }

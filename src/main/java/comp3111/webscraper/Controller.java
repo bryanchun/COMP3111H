@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package comp3111.webscraper;
 
@@ -11,19 +11,19 @@ import javafx.fxml.FXML;
 import javafx.scene.chart.AreaChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 
+import java.io.File;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 
 /**
- * 
  * @author kevinw
  * <p>
  * <p>
  * Controller class that manage GUI interaction. Please see document about JavaFX for details.
- * 
  */
 public class Controller {
 
@@ -79,6 +79,8 @@ public class Controller {
      */
     public StringProperty consoleText = new SimpleStringProperty();
     private BooleanProperty isRefineDisabled = new SimpleBooleanProperty(true);
+    private Boolean loadingFile = false;
+    private String loadingFilename = "";
 
 
     public static String generateItemsConsoleOutput(List<Item> products) {
@@ -101,14 +103,16 @@ public class Controller {
 
         // Listener is triggered when SearchRecord::latest is updated
         SearchRecord.getLatestProperty().addListener((o, oldValue, newValue) -> {
-            // Updates consoleText
-            consoleText.setValue(generateItemsConsoleOutput(newValue.getProducts()));
+            if (newValue != null) {
+                // Updates consoleText
+                consoleText.setValue((loadingFile ? "--Data Loading from " + loadingFilename + "--\n" : "") + generateItemsConsoleOutput(newValue.getProducts()));
+                loadingFile = false;
+                // Updates current products
+                currentProducts.setAll(newValue.getProducts());
 
-            // Updates current products
-            currentProducts.setAll(newValue.getProducts());
-
-            // Updates isRefineDisabled
-            isRefineDisabled.setValue(newValue.getHasSearchRefined() || currentProducts.size() == 0);
+                // Updates isRefineDisabled
+                isRefineDisabled.setValue(newValue.getHasSearchRefined() || currentProducts.size() == 0);
+            }
         });
 
         // Initialize Table factories and listeners
@@ -138,6 +142,43 @@ public class Controller {
         String query = textFieldKeyword.getText();
         System.out.println("actionRefineSearch: " + query);
         SearchRecord.newRefineSearch(query);
+    }
+
+    @FXML
+    private void actionLoad() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Open Resource File");
+        FileChooser.ExtensionFilter fileExtensions =
+                new FileChooser.ExtensionFilter("Data", "*.dat");
+        fileChooser.getExtensionFilters().add(fileExtensions);
+        File file = fileChooser.showOpenDialog(root.getScene().getWindow());
+        loadingFile = true;
+        loadingFilename = file.getPath();
+        try {
+            SearchRecord.load(file.getPath());
+        } catch (Exception e) {
+            loadingFile = false;
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Called when save button is pressed, prompts a file chooser and saves the file.
+     */
+    @FXML
+    private void actionSave() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Resource File");
+        FileChooser.ExtensionFilter fileExtensions =
+                new FileChooser.ExtensionFilter("Data", "*.dat");
+        fileChooser.setInitialFileName("record.dat");
+        fileChooser.getExtensionFilters().add(fileExtensions);
+        File file = fileChooser.showSaveDialog(root.getScene().getWindow());
+        try {
+            SearchRecord.save(file.getPath());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
