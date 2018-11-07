@@ -11,6 +11,7 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.chart.BarChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 
@@ -73,6 +74,10 @@ public class Controller {
     @FXML
     public TableColumn<Item, String> portalColumn;
 
+    // DistributionTab nodes
+    @FXML
+    public BarChart<String, Integer> barChartHistogram;
+
     /**
      * StringProperty storing text that is shown in the console TextArea
      */
@@ -111,6 +116,9 @@ public class Controller {
 
         // Initialize Table factories and listeners
         new TableTab(this).initTable(currentProducts);
+
+        // Initialize Distribution
+        new DistributionTab(this).initDistribution(currentProducts);
     }
 
     /**
