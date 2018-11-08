@@ -6,6 +6,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
  * SearchRecord stores a search that contains the keyword used for the search and the results of the search.
  * It also provides a save and load function to read and write history from and into files.
  */
-public class SearchRecord {
+public class SearchRecord implements Serializable {
     private static final int MAX_HISTORY_SIZE = 5;
     private static final ObservableList<SearchRecord> allSearchRecords = FXCollections.observableArrayList();
     private static final ObjectProperty<SearchRecord> latest = new SimpleObjectProperty<>();
@@ -25,9 +26,9 @@ public class SearchRecord {
         allSearchRecords.addListener((ListChangeListener<SearchRecord>) listener -> {
             if (listener.next() && listener.wasAdded() && allSearchRecords.size() > MAX_HISTORY_SIZE) {
                 //Remove old history
-                allSearchRecords.remove(MAX_HISTORY_SIZE - 1, allSearchRecords.size());
+                allSearchRecords.remove(MAX_HISTORY_SIZE, allSearchRecords.size());
             }
-            latest.set(allSearchRecords.get(0));
+            latest.set(allSearchRecords.size() > 0 ? allSearchRecords.get(0) : null);
         });
     }
 
@@ -49,6 +50,19 @@ public class SearchRecord {
      */
     private SearchRecord(String keyword) {
         this.search(keyword);
+    }
+
+    /**
+     * Constructs a SearchRecord with supplied attributes.
+     *
+     * @param keyword          Search keyword
+     * @param products         Search product list
+     * @param hasSearchRefined Whether a refine search is conducted
+     */
+    SearchRecord(String keyword, List<Item> products, Boolean hasSearchRefined) {
+        this.keyword = keyword;
+        this.products = products;
+        this.hasSearchRefined = hasSearchRefined;
     }
 
     /**
@@ -77,7 +91,7 @@ public class SearchRecord {
      *
      * @param searchRecord A new SearchRecord
      */
-    private static void pushHistory(SearchRecord searchRecord) {
+    static void pushHistory(SearchRecord searchRecord) {
         allSearchRecords.add(0, searchRecord);
     }
 
@@ -107,7 +121,15 @@ public class SearchRecord {
      * @param path The path where the save file is written
      */
     public static void save(String path) {
-        // Todo implement save
+        System.out.println("Saving to " + path);
+        try {
+            FileOutputStream fos = new FileOutputStream(path);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(new ArrayList<>(allSearchRecords));
+            oos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -115,8 +137,18 @@ public class SearchRecord {
      *
      * @param path The path where the save file is loaded
      */
-    public static void load(String path) {
-        // Todo implement load
+    public static void load(String path) throws Exception {
+        System.out.println("Loading from " + path);
+        FileInputStream fis = new FileInputStream(path);
+        ObjectInputStream ois = new ObjectInputStream(fis);
+        Object obj = ois.readObject();
+        ArrayList<?> genList = (ArrayList<?>) obj;
+        ArrayList<SearchRecord> list = new ArrayList<>();
+        list.clear();
+        for (Object x : genList) {
+            list.add((SearchRecord) x);
+        }
+        allSearchRecords.setAll(list);
     }
 
     /**
@@ -165,4 +197,7 @@ public class SearchRecord {
         return products;
     }
 
+    public static ObservableList<SearchRecord> getAllSearchRecords() {
+        return allSearchRecords;
+    }
 }

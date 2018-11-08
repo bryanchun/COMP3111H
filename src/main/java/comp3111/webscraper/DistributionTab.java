@@ -13,10 +13,18 @@ class DistributionTab {
     private Controller controller;
     private Double numOfBins = 10.0;
 
+    private final String BAR_DEFAULT_CLASS = "default-bar";
+    private final String BAR_ACTIVE_CLASS = "active-bar";
+
+
     DistributionTab(Controller controller) {
         this.controller = controller;
     }
 
+    /**
+     * Call when initialize Distribution
+     * @param currentProducts
+     */
     void initDistribution(ObservableList<Item> currentProducts) {
 
         // Set gaps and axes
@@ -38,7 +46,7 @@ class DistributionTab {
             // Transform currentProducts to prices
             List<Double> prices = currentProducts.stream().map(Item::getPrice).collect(Collectors.toList());
             HashMap< XYChart.Data<String, Integer>, List<Item> > binnedProducts = new HashMap<>();
-            System.out.println( getPriceRanges(prices, numOfBins).size() );
+            System.out.println("getPriceRanges count: " + getPriceRanges(prices, numOfBins).size());
 
             // Add bins to barChart and keep mapping between XYChart.Data and list of products for this range
             getPriceRanges(prices, numOfBins).forEach(priceRange -> {
@@ -66,16 +74,15 @@ class DistributionTab {
                     if (event.getClickCount() == 2) {
                         System.out.println("Double clicked");
 
-                        // Flush Console
-                        controller.consoleText.setValue("");
-                        //TODO print list of items in this range
-                        System.out.println( binnedProducts.get(bin) );
+                        // Flush Console and fill Console
+                        controller.consoleText.setValue(Controller.generateItemsConsoleOutput(binnedProducts.get(bin)));
 
                         // Apply CSS style
-                        bin.getNode().setStyle("-fx-bar-fill: blue");
+                        bin.getNode().getStyleClass().add(BAR_ACTIVE_CLASS);
                         series.getData().forEach(otherBin -> {
                             if (otherBin != bin) {
-                                otherBin.getNode().setStyle("-fx-bar-fill: #f3622d");
+                                otherBin.getNode().getStyleClass().removeIf(className -> className.equals(BAR_ACTIVE_CLASS));
+                                otherBin.getNode().getStyleClass().add(BAR_DEFAULT_CLASS);
                             }
                         });
                     }

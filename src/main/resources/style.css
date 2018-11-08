@@ -1,0 +1,18 @@
+.active-datum {
+    -fx-background-color: #f3622d;
+}
+
+.default-bar {
+    -fx-background-color: #f3622d;
+}
+
+.active-bar {
+    -fx-background-color: #336699;
+}
+
+.chart-area-symbol {
+    -fx-pref-width: 20px;
+    -fx-pref-height: 20px;
+    -fx-background-radius: 100%;
+    -fx-stroke-width: 2px;
+}
