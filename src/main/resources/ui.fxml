@@ -7,7 +7,7 @@
 <?import javafx.scene.chart.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<VBox fx:id="root" prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/10.0.1"
+<VBox fx:id="root" prefHeight="400.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.102"
       xmlns:fx="http://javafx.com/fxml/1" fx:controller="comp3111.webscraper.Controller">
 
     <!-- This is your MenuBar -->

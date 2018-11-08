@@ -78,7 +78,7 @@ class TrendTab {
         });
 
         controller.trendCombo.setItems(SearchRecord.getAllSearchRecords());
-        controller.trendCombo.setOnAction(action -> controller.trendSelected.set(controller.trendCombo.getValue()));
+        controller.trendCombo.valueProperty().addListener((o, oldValue, newValue) -> controller.trendSelected.set(newValue));
     }
 
     private static LocalDate localDateFromDate(Date date) {
