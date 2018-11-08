@@ -9,6 +9,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.chart.AreaChart;
+import javafx.scene.chart.BarChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -50,7 +51,7 @@ public class Controller {
 
     private ObservableList<Item> currentProducts = FXCollections.observableArrayList();
 
-    // TableTab nodes
+    // TableTab elements
     @FXML
     public VBox root;
     @FXML
@@ -65,6 +66,10 @@ public class Controller {
     public TableColumn<Item, Date> postedDateColumn;
     @FXML
     public TableColumn<Item, String> portalColumn;
+
+    // DistributionTab elements
+    @FXML
+    public BarChart<String, Integer> barChartHistogram;
 
     // TrendTab elements
     @FXML
@@ -117,6 +122,9 @@ public class Controller {
 
         // Initialize Table factories and listeners
         new TableTab(this).initTable(currentProducts);
+
+        // Initialize Distribution
+        new DistributionTab(this).initDistribution(currentProducts);
 
         // Initializes TrendTab
         new TrendTab(this);
