@@ -64,6 +64,8 @@ public class ControllerTest extends ApplicationTest {
 
     @Test
     public void testIllegalSearch() throws Exception {
+        SearchRecord.getAllSearchRecords().clear();
+
         //Blank searches are forbidden
         clickOn("#textFieldKeyword");
         type(KeyCode.SPACE);
