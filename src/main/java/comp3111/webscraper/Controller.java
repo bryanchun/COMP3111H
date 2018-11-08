@@ -81,7 +81,7 @@ public class Controller {
     /**
      * StringProperty storing text that is shown in the console TextArea
      */
-    private StringProperty consoleText = new SimpleStringProperty();
+    public StringProperty consoleText = new SimpleStringProperty();
     private BooleanProperty isRefineDisabled = new SimpleBooleanProperty(true);
 
     /**

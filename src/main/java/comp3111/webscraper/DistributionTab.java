@@ -5,15 +5,13 @@ import javafx.collections.ObservableList;
 import javafx.scene.chart.XYChart;
 import javafx.util.Pair;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 class DistributionTab {
 
     private Controller controller;
-    private Integer numOfBins = 10;
+    private Double numOfBins = 10.0;
 
     DistributionTab(Controller controller) {
         this.controller = controller;
@@ -21,6 +19,7 @@ class DistributionTab {
 
     void initDistribution(ObservableList<Item> currentProducts) {
 
+        // Set gaps and axes
         controller.barChartHistogram.setCategoryGap(0);
         controller.barChartHistogram.setBarGap(0);
         controller.barChartHistogram.getXAxis().setLabel("Price");
@@ -31,26 +30,57 @@ class DistributionTab {
 
             // Reset all series
             controller.barChartHistogram.getData().retainAll();
-
-            // Create list of prices
-            List<Double> prices = currentProducts.stream().map(Item::getPrice).collect(Collectors.toList());
-
-            // Create series container for data
+            // Create new series container for data
             XYChart.Series<String, Integer> series = new XYChart.Series<>();
-
-            // Apply bin label and frequency to each series datum
-            for (Pair<Double, Double> priceRange : getPriceRanges(prices, numOfBins)) {
-                series.getData().add(new XYChart.Data<>(
-                        getBinLabel(priceRange),
-                        getFrequency(prices, priceRange)
-                ));
-            }
-
-            // Legend
+            // Set Legend by search keyword
             series.setName("The selling price of " + SearchRecord.getLatestProperty().get().getKeyword());
 
-            // Add single new series
+            // Transform currentProducts to prices
+            List<Double> prices = currentProducts.stream().map(Item::getPrice).collect(Collectors.toList());
+            HashMap< XYChart.Data<String, Integer>, List<Item> > binnedProducts = new HashMap<>();
+            System.out.println( getPriceRanges(prices, numOfBins).size() );
+
+            // Add bins to barChart and keep mapping between XYChart.Data and list of products for this range
+            getPriceRanges(prices, numOfBins).forEach(priceRange -> {
+                // Create bin for each price range
+                XYChart.Data<String, Integer> bin = new XYChart.Data<>(
+                    getBinLabel(priceRange),
+                    getFrequency(prices, priceRange));
+
+                // Apply bin label and frequency for each priceRange to series
+                series.getData().add(bin);
+
+                // Store a map between bins and the list of items whose price falls within this priceRange
+                binnedProducts.put(
+                    bin,
+                    getProductsInPriceRange(currentProducts, priceRange)
+                );
+            });
+
+            // Apply the new series
             controller.barChartHistogram.getData().addAll(series);
+
+            // Set Double Click listeners for all nodes
+            series.getData().forEach(bin -> {
+                bin.getNode().setOnMouseClicked(event -> {
+                    if (event.getClickCount() == 2) {
+                        System.out.println("Double clicked");
+
+                        // Flush Console
+                        controller.consoleText.setValue("");
+                        //TODO print list of items in this range
+                        System.out.println( binnedProducts.get(bin) );
+
+                        // Apply CSS style
+                        bin.getNode().setStyle("-fx-bar-fill: blue");
+                        series.getData().forEach(otherBin -> {
+                            if (otherBin != bin) {
+                                otherBin.getNode().setStyle("-fx-bar-fill: #f3622d");
+                            }
+                        });
+                    }
+                });
+            });
         });
     }
 
@@ -60,7 +90,7 @@ class DistributionTab {
      * @param numOfBins
      * @return priceRanges
      */
-    private List<Pair<Double, Double>> getPriceRanges(List<Double> prices, Integer numOfBins) {
+    private List<Pair<Double, Double>> getPriceRanges(List<Double> prices, Double numOfBins) {
         List<Pair<Double, Double>> priceRanges = new ArrayList<>();
 
         // If prices has one element only, add [0, price] and return
@@ -103,6 +133,23 @@ class DistributionTab {
         // Break boundary points by a right-inclusive rule
         else {
             return prices.stream().filter(price -> priceRange.getKey() < price && price <= priceRange.getValue()).toArray().length;
+        }
+    }
+
+    /**
+     * Compute list of Item that is within the priceRange specified
+     * @param currentProducts
+     * @param priceRange
+     * @return
+     */
+    private List<Item> getProductsInPriceRange(List<Item> currentProducts, Pair<Double, Double> priceRange) {
+        // Keep all 0-priced in first bin
+        if (priceRange.getKey() == 0.0) {
+            return currentProducts.stream().filter(item -> priceRange.getKey() <= item.getPrice() && item.getPrice() <= priceRange.getValue()).collect(Collectors.toList());
+        }
+        // Break boundary points by a right-inclusive rule
+        else {
+            return currentProducts.stream().filter(item -> priceRange.getKey() < item.getPrice() && item.getPrice() <= priceRange.getValue()).collect(Collectors.toList());
         }
     }
 }
