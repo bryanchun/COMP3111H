@@ -22,7 +22,7 @@ class DistributionTab {
     }
 
     /**
-     * Call when initialize Distribution
+     * Called when initialize Distribution
      * @param currentProducts
      */
     void initDistribution(ObservableList<Item> currentProducts) {
@@ -127,7 +127,7 @@ class DistributionTab {
 
     /**
      * Compute the frequency of products in prices that falls under priceRange
-     * [key, value] is a priceRange
+     * Format: [key, value] is a priceRange
      * @param prices
      * @param priceRange
      * @return frequency
