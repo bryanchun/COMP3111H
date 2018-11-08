@@ -51,7 +51,7 @@ public class Controller {
 
     private ObservableList<Item> currentProducts = FXCollections.observableArrayList();
 
-    // TableTab nodes
+    // TableTab elements
     @FXML
     public VBox root;
     @FXML
@@ -67,7 +67,7 @@ public class Controller {
     @FXML
     public TableColumn<Item, String> portalColumn;
 
-    // DistributionTab nodes
+    // DistributionTab elements
     @FXML
     public BarChart<String, Integer> barChartHistogram;
 
