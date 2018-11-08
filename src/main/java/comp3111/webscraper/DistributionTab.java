@@ -1,5 +1,6 @@
 package comp3111.webscraper;
 
+import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.scene.chart.XYChart;
@@ -34,61 +35,64 @@ class DistributionTab {
         controller.barChartHistogram.getYAxis().setLabel("Frequency");
 
         // Update Distribution on every new search
-        currentProducts.addListener((ListChangeListener<Item>) change -> {
+        currentProducts.addListener((ListChangeListener<Item>) change ->
+            Platform.runLater(() -> {
 
-            // Reset all series
-            controller.barChartHistogram.getData().retainAll();
-            // Create new series container for data
-            XYChart.Series<String, Integer> series = new XYChart.Series<>();
-            // Set Legend by search keyword
-            series.setName("The selling price of " + SearchRecord.getLatestProperty().get().getKeyword());
+                // Reset all series
+                controller.barChartHistogram.getData().clear();
+                // Create new series container for data
+                XYChart.Series<String, Integer> series = new XYChart.Series<>();
+                // Set Legend by search keyword
+                series.setName("The selling price of " + SearchRecord.getLatestProperty().get().getKeyword());
 
-            // Transform currentProducts to prices
-            List<Double> prices = currentProducts.stream().map(Item::getPrice).collect(Collectors.toList());
-            HashMap< XYChart.Data<String, Integer>, List<Item> > binnedProducts = new HashMap<>();
-            System.out.println("getPriceRanges count: " + getPriceRanges(prices, numOfBins).size());
+                // Transform currentProducts to prices
+                List<Double> prices = currentProducts.stream().map(Item::getPrice).collect(Collectors.toList());
+                HashMap<XYChart.Data<String, Integer>, List<Item>> binnedProducts = new HashMap<>();
+                System.out.println("getPriceRanges count: " + getPriceRanges(prices, numOfBins).size());
 
-            // Add bins to barChart and keep mapping between XYChart.Data and list of products for this range
-            getPriceRanges(prices, numOfBins).forEach(priceRange -> {
-                // Create bin for each price range
-                XYChart.Data<String, Integer> bin = new XYChart.Data<>(
-                    getBinLabel(priceRange),
-                    getFrequency(prices, priceRange));
+                // Add bins to barChart and keep mapping between XYChart.Data and list of products for this range
+                getPriceRanges(prices, numOfBins).forEach(priceRange -> {
+                    // Create bin for each price range
+                    XYChart.Data<String, Integer> bin = new XYChart.Data<>(
+                            getBinLabel(priceRange),
+                            getFrequency(prices, priceRange));
 
-                // Apply bin label and frequency for each priceRange to series
-                series.getData().add(bin);
+                    // Apply bin label and frequency for each priceRange to series
+                    series.getData().add(bin);
 
-                // Store a map between bins and the list of items whose price falls within this priceRange
-                binnedProducts.put(
-                    bin,
-                    getProductsInPriceRange(currentProducts, priceRange)
-                );
-            });
-
-            // Apply the new series
-            controller.barChartHistogram.getData().addAll(series);
-
-            // Set Double Click listeners for all nodes
-            series.getData().forEach(bin -> {
-                bin.getNode().setOnMouseClicked(event -> {
-                    if (event.getClickCount() == 2) {
-                        System.out.println("Double clicked");
-
-                        // Flush Console and fill Console
-                        controller.consoleText.setValue(Controller.generateItemsConsoleOutput(binnedProducts.get(bin)));
-
-                        // Apply CSS style
-                        bin.getNode().getStyleClass().add(BAR_ACTIVE_CLASS);
-                        series.getData().forEach(otherBin -> {
-                            if (otherBin != bin) {
-                                otherBin.getNode().getStyleClass().removeIf(className -> className.equals(BAR_ACTIVE_CLASS));
-                                otherBin.getNode().getStyleClass().add(BAR_DEFAULT_CLASS);
-                            }
-                        });
-                    }
+                    // Store a map between bins and the list of items whose price falls within this priceRange
+                    binnedProducts.put(
+                            bin,
+                            getProductsInPriceRange(currentProducts, priceRange)
+                    );
                 });
-            });
-        });
+
+                // Apply the new series
+                controller.barChartHistogram.getData().add(series);
+
+
+                // Set Double Click listeners for all nodes
+                series.getData().forEach(bin -> {
+                    bin.getNode().setOnMouseClicked(event -> {
+                        if (event.getClickCount() == 2) {
+                            System.out.println("Double clicked");
+
+                            // Flush Console and fill Console
+                            controller.consoleText.setValue(Controller.generateItemsConsoleOutput(binnedProducts.get(bin)));
+
+                            // Apply CSS style
+                            bin.getNode().getStyleClass().add(BAR_ACTIVE_CLASS);
+                            series.getData().forEach(otherBin -> {
+                                if (otherBin != bin) {
+                                    otherBin.getNode().getStyleClass().removeIf(className -> className.equals(BAR_ACTIVE_CLASS));
+                                    otherBin.getNode().getStyleClass().add(BAR_DEFAULT_CLASS);
+                                }
+                            });
+                        }
+                    });
+                });
+            })
+        );
     }
 
     /**
