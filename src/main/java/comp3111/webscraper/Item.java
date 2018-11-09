@@ -37,42 +37,82 @@ public class Item implements Serializable {
         this.portal = portal;
     }
 
+    /**
+     * Retrieves the title of the product
+     * @return the title of the product
+     */
     public String getTitle() {
         return title;
     }
 
+    /**
+     * Sets the title of the product
+     * @param title the title of the product
+     */
     public void setTitle(String title) {
         this.title = title;
     }
 
+    /**
+     * Retrieves the price of the product
+     * @return the price of the product
+     */
     public double getPrice() {
         return price;
     }
 
+    /**
+     * Sets the price of the product
+     * @param price the price of the product
+     */
     public void setPrice(double price) {
         this.price = price;
     }
 
+    /**
+     * Retrieves the URL of the product
+     * @return the URL of the product
+     */
     public String getUrl() {
         return url;
     }
 
+    /**
+     * Sets the URL of the product
+     * @param url the URL of the product
+     */
     public void setUrl(String url) {
         this.url = url;
     }
 
+    /**
+     * Retrieves the portal of where the product comes from
+     * @return the portal of where the product comes from
+     */
     public String getPortal() {
         return portal;
     }
 
+    /**
+     * Sets the portal of where the product comes from
+     * @param portal the portal of where the product comes from
+     */
     public void setPortal(String portal) {
         this.portal = portal;
     }
 
+    /**
+     * Retrieves when the product listing is created
+     * @return Date when the product listing is created
+     */
     public Date getCreatedAt() {
         return createdAt;
     }
 
+    /**
+     * Sets when the product listing is created
+     * @param createdAt Date when the product listing is created
+     */
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }

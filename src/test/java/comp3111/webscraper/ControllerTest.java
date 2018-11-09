@@ -1,6 +1,7 @@
 package comp3111.webscraper;
 
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableView;
@@ -19,9 +20,10 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -51,6 +53,46 @@ public class ControllerTest extends ApplicationTest {
         FxToolkit.hideStage();
         release(new KeyCode[]{});
         release(new MouseButton[]{});
+    }
+
+    @Test
+    public void testGenerateItemsConsoleOutput() {
+        Date today = new Date();
+        List<Item> products = Arrays.asList(
+                new Item(
+                        "1",
+                        1.0,
+                        "http://example.com/",
+                        today,
+                        "Test"
+                ),
+                new Item(
+                        "Free",
+                        0.0,
+                        "http://example.com/",
+                        today,
+                        "Test"
+                )
+        );
+        assertEquals("1\t1.0\thttp://example.com/\nFree\t0.0\thttp://example.com/\n", Controller.generateItemsConsoleOutput(products));
+    }
+
+    @Test
+    public void testDummy() throws Exception {
+        Method actionNew = Controller.class.getDeclaredMethod("actionNew");
+        actionNew.setAccessible(true);
+        actionNew.invoke(controller);
+    }
+
+    @Test
+    public void testIllegalSearch() throws Exception {
+        SearchRecord.getAllSearchRecords().clear();
+
+        //Blank searches are forbidden
+        clickOn("#textFieldKeyword");
+        type(KeyCode.SPACE);
+        clickOn("#buttonSearch");
+        assertEquals(0, SearchRecord.getAllSearchRecords().size());
     }
 
     @Test
@@ -210,5 +252,70 @@ public class ControllerTest extends ApplicationTest {
         // Delete the generated file
         File file = new File(filename);
         assertTrue(file.delete());
+    }
+
+    @Test
+    public void testTrendTab() throws Exception {
+        //Building props
+        final LocalDate today = LocalDate.now();
+
+        SearchRecord.getAllSearchRecords().clear();
+
+        List<Item> products2 = Arrays.asList(
+                new Item(
+                        "1",
+                        1.0,
+                        "http://example.com/",
+                        new Date(java.sql.Date.valueOf(today).getTime()),
+                        "Test"
+                ),
+                new Item(
+                        "Free",
+                        0.0,
+                        "http://example.com/",
+                        new Date(java.sql.Date.valueOf(today).getTime()),
+                        "Test"
+                ),
+                new Item(
+                        "2",
+                        2.0,
+                        "http://example.com/",
+                        new Date(java.sql.Date.valueOf(today.minusDays(1)).getTime()),
+                        "Test"
+                ),
+                new Item(
+                        "3",
+                        3.0,
+                        "http://example.com/",
+                        new Date(java.sql.Date.valueOf(today.minusDays(10)).getTime()),
+                        "Test"
+                ),
+                new Item(
+                        "4",
+                        3.0,
+                        "http://example.com/",
+                        new Date(java.sql.Date.valueOf(today.plusDays(10)).getTime()),
+                        "Test"
+                )
+        );
+
+        List<Item> todayList = products2.subList(0, 2);
+
+        SearchRecord.pushHistory(new SearchRecord("test1", products2, false));
+        SearchRecord.pushHistory(new SearchRecord("test0", new ArrayList<>(), false));
+
+        //Starting test
+        clickOn((Node) lookup("#tabpane > .tab-header-area > .headers-region > .tab").nth(4).query());
+        clickOn("#trendCombo");
+        type(KeyCode.DOWN);
+        type(KeyCode.DOWN);
+        sleep(1000);
+
+        Node datum = lookup("#trendAreaChart .chart-area-symbol").nth(1).query();
+
+        rightClickOn(datum);
+        doubleClickOn(datum);
+
+        assertEquals(Controller.generateItemsConsoleOutput(todayList), controller.consoleText.get());
     }
 }

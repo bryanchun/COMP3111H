@@ -88,6 +88,11 @@ public class Controller {
     private String loadingFilename = "";
 
 
+    /**
+     * Generates a formatted string describing the items
+     * @param products An Item list of products
+     * @return Formatted string describing the items
+     */
     public static String generateItemsConsoleOutput(List<Item> products) {
         return products.stream().map(item -> item.getTitle() + "\t" + item.getPrice() + "\t" + item.getUrl() + "\n").collect(Collectors.joining());
     }
