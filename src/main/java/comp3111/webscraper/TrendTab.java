@@ -18,16 +18,27 @@ import java.util.stream.IntStream;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 
+/**
+ * TrendTab
+ *
+ * @author CHEUNG, Danel
+ *
+ * Displays an AreaChart and a combo box, and updates the chart when a searched keyword is selected in the combo box, the last 7 days of the average prices of the product listings created on that day, and updates the console when the user double clicks on a point on the chart, to show the products on that day.
+ */
 class TrendTab {
-    private final int MAX_DAYS = 7;
-    private final String DATUM_ACTIVE_CLASS = "active-datum";
-    private final DateTimeFormatter LABEL_DATE_FORMATTER = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+    private static final int MAX_DAYS = 7;
+    private static final String DATUM_ACTIVE_CLASS = "active-datum";
+    private static final DateTimeFormatter LABEL_DATE_FORMATTER = DateTimeFormatter.ofPattern("MM/dd/yyyy");
 
     private Controller controller;
     private Series<String, Double> series = new Series<>();
     private ObservableList<Data<String, Double>> data = series.getData();
     private List<List<Item>> productsInDaysUntil = new ArrayList<>();
 
+    /**
+     * Constructor that initializes the trend tab
+     * @param controller Controller in use
+     */
     TrendTab(Controller controller) {
         this.controller = controller;
         ObservableList<Series<String, Double>> seriesList = FXCollections.observableArrayList();
@@ -81,10 +92,20 @@ class TrendTab {
         controller.trendCombo.valueProperty().addListener((o, oldValue, newValue) -> controller.trendSelected.set(newValue));
     }
 
+    /**
+     * Converts a java.util.Date into a LocalDate class
+     * @param date a Date
+     * @return a LocalDate
+     */
     private static LocalDate localDateFromDate(Date date) {
         return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
+    /**
+     * Called when a point is selected This will update console to show listings created on the date described by i-th product array in productsInDaysUntil.
+     * @param i i-th product array in productsInDaysUntil
+     * @param node corresponding data point node that represents the average price of the day
+     */
     private void selectDate(int i, Node node) {
         controller.consoleText.set(Controller.generateItemsConsoleOutput(productsInDaysUntil.get(i)));
         data.forEach(datum -> datum.getNode().getStyleClass().removeIf(className -> className.equals(DATUM_ACTIVE_CLASS)));

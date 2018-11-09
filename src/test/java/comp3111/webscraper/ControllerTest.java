@@ -56,6 +56,28 @@ public class ControllerTest extends ApplicationTest {
     }
 
     @Test
+    public void testGenerateItemsConsoleOutput() {
+        Date today = new Date();
+        List<Item> products = Arrays.asList(
+                new Item(
+                        "1",
+                        1.0,
+                        "http://example.com/",
+                        today,
+                        "Test"
+                ),
+                new Item(
+                        "Free",
+                        0.0,
+                        "http://example.com/",
+                        today,
+                        "Test"
+                )
+        );
+        assertEquals("1\t1.0\thttp://example.com/\nFree\t0.0\thttp://example.com/\n", Controller.generateItemsConsoleOutput(products));
+    }
+
+    @Test
     public void testDummy() throws Exception {
         Method actionNew = Controller.class.getDeclaredMethod("actionNew");
         actionNew.setAccessible(true);

@@ -19,6 +19,8 @@ import java.util.Map;
 
 
 /**
+ * @author CHEUNG, Daniel
+ *
  * WebScraper provide a sample code that scrape web content. After it is constructed, you can call the method scrape with a keyword,
  * the client will go to the default url and parse the page by looking at the HTML DOM.
  * <br/>
