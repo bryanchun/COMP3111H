@@ -9,6 +9,14 @@ import javafx.util.Pair;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * DistributionTab
+ *
+ * @author Bryan CHUN
+ *
+ * Fill in a histogram of prices with the current products after a search. According to the range of the prices, 10 equal intervals are generated and products falling into respective price ranges will be allocated there. Double clicking one bar will change its color to blue, while all other bars restore to orange.
+ */
+
 class DistributionTab {
 
     private Controller controller;
@@ -73,6 +81,7 @@ class DistributionTab {
 
                 // Set Double Click listeners for all nodes
                 series.getData().forEach(bin -> {
+                    bin.getNode().getStyleClass().add(BAR_DEFAULT_CLASS);
                     bin.getNode().setOnMouseClicked(event -> {
                         if (event.getClickCount() == 2) {
                             System.out.println("Double clicked");
@@ -81,13 +90,23 @@ class DistributionTab {
                             controller.consoleText.setValue(Controller.generateItemsConsoleOutput(binnedProducts.get(bin)));
 
                             // Apply CSS style
-                            bin.getNode().getStyleClass().add(BAR_ACTIVE_CLASS);
+                            if (!bin.getNode().getStyleClass().contains(BAR_ACTIVE_CLASS)) {
+                                bin.getNode().getStyleClass().add(BAR_ACTIVE_CLASS);
+                            }
+                            bin.getNode().getStyleClass().removeIf(className -> className.equals(BAR_DEFAULT_CLASS));
+
                             series.getData().forEach(otherBin -> {
                                 if (otherBin != bin) {
                                     otherBin.getNode().getStyleClass().removeIf(className -> className.equals(BAR_ACTIVE_CLASS));
-                                    otherBin.getNode().getStyleClass().add(BAR_DEFAULT_CLASS);
+                                    if (!otherBin.getNode().getStyleClass().contains(BAR_DEFAULT_CLASS)) {
+                                        otherBin.getNode().getStyleClass().add(BAR_DEFAULT_CLASS);
+                                    }
                                 }
                             });
+
+                            series.getData().forEach(_bin ->
+                                    System.out.println(_bin.getNode().getStyleClass()) );
+
                         }
                     });
                 });
