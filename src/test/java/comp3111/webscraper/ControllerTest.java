@@ -287,11 +287,12 @@ public class ControllerTest extends ApplicationTest {
             }
         };
 
-        SearchRecord.pushHistory(new SearchRecord("test", products2, false));
-
         TabPane tabpane = lookup("#tabpane").query();
         tabpane.getSelectionModel().select(3);
         BarChart barChart = lookup("#barChartHistogram").query();
+        SearchRecord.pushHistory(new SearchRecord("test", products2, false));
+
+
         Platform.runLater(() -> {
             XYChart.Series<String, Integer> series = (XYChart.Series<String, Integer>) barChart.getData().get(0);
 
@@ -312,24 +313,22 @@ public class ControllerTest extends ApplicationTest {
             }
 
             // Check bar colour changes on double click
-//            for (Integer binIndex : Arrays.asList(0, 2, 5)) {
-////                Node binNode1 = series.getData().get(binIndex).getNode();
+            for (Integer binIndex : Arrays.asList(0, 2, 5)) {
+                Node binNode1 = series.getData().get(binIndex).getNode();
 //                Node binNode1 = lookup(".data"+String.valueOf(binIndex)).query();
-////                assertThat(binNode1.getStyleClass(), hasItem(BAR_DEFAULT_CLASS));
-//                rightClickOn(binNode1);
-//                doubleClickOn(binNode1);
-//                sleep(1000);
-//                System.out.println(binNode1.getStyleClass());
-////                assertTrue(binNode1.getStyleClass().contains(BAR_ACTIVE_CLASS));
-//                assertTrue(binNode1.getStyleClass().contains(BAR_ACTIVE_CLASS));
-//                for (XYChart.Data otherBin : series.getData()) {
-//                    Node otherBinNode = otherBin.getNode();
-//                    if (otherBinNode != binNode1) {
-//                        assertTrue(otherBinNode.getStyleClass().contains(BAR_DEFAULT_CLASS));
-//                        assertFalse(otherBinNode.getStyleClass().contains(BAR_ACTIVE_CLASS));
-//                    }
-//                }
-//            }
+//                assertThat(binNode1.getStyleClass(), hasItem(BAR_DEFAULT_CLASS));
+                doubleClickOn(binNode1);
+                sleep(5000);
+                System.out.println(binNode1.getStyleClass());
+//                assertTrue(binNode1.getStyleClass().contains(BAR_ACTIVE_CLASS));;
+                for (XYChart.Data otherBin : series.getData()) {
+                    Node otherBinNode = otherBin.getNode();
+                    if (otherBinNode != binNode1) {
+                        assertTrue(otherBinNode.getStyleClass().contains(BAR_DEFAULT_CLASS));
+                        assertFalse(otherBinNode.getStyleClass().contains(BAR_ACTIVE_CLASS));
+                    }
+                }
+            }
         });
 
     }
