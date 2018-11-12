@@ -14,6 +14,7 @@
 2. Treat USD convert to HKD in 1:7.8. 
 3. The system is used in Windows machines with Orcale JDK.
 4. The interpretation of the prompt of Advanced Task 3 is that last seven days counts from the time of view of the tab instead of the time of search.
+5. After loading search from a file, no refine search can be performed.
 
 
 ## Project Problem Statement and Activities
