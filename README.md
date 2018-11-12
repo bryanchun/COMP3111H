@@ -1,5 +1,21 @@
 # COMP3111: Software Engineering Project - Webscrapper
 [![Build Status](https://travis-ci.com/bryanchun/COMP3111H.svg?token=YXnT9FdFNUzyG82UFUoq&branch=master)](https://travis-ci.com/bryanchun/COMP3111H)
+
+* Group name : #41 1; DROP ALL TABLES; -- 
+
+|  Member | Task | Task |
+|----|----|----|
+| CHEUNG, Daniel (`danvim`) | Basic 2 | Advacned 3 |
+| CHUN, Hiu Sang (`bryanchun`) | Basic 4 | Advanced 1 |
+| TSE, Ho Nam (`mcreng`) | Basic 5 | Advanced 2 |
+
+* Assumption
+1. Use carousell as the other portal. 
+2. Treat USD convert to HKD in 1:7.8. 
+3. The system is used in Windows machines with Orcale JDK.
+4. The interpretation of the prompt of Advanced Task 3 is that last seven days counts from the time of view of the tab instead of the time of search.
+
+
 ## Project Problem Statement and Activities
 
 
