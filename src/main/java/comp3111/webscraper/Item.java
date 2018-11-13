@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
+ * @author Daniel Cheung
  * Represents a product scraped from an online portal
  */
 public class Item implements Serializable {
@@ -39,6 +40,7 @@ public class Item implements Serializable {
 
     /**
      * Retrieves the title of the product
+     *
      * @return the title of the product
      */
     public String getTitle() {
@@ -47,6 +49,7 @@ public class Item implements Serializable {
 
     /**
      * Sets the title of the product
+     *
      * @param title the title of the product
      */
     public void setTitle(String title) {
@@ -55,6 +58,7 @@ public class Item implements Serializable {
 
     /**
      * Retrieves the price of the product
+     *
      * @return the price of the product
      */
     public double getPrice() {
@@ -63,6 +67,7 @@ public class Item implements Serializable {
 
     /**
      * Sets the price of the product
+     *
      * @param price the price of the product
      */
     public void setPrice(double price) {
@@ -71,6 +76,7 @@ public class Item implements Serializable {
 
     /**
      * Retrieves the URL of the product
+     *
      * @return the URL of the product
      */
     public String getUrl() {
@@ -79,6 +85,7 @@ public class Item implements Serializable {
 
     /**
      * Sets the URL of the product
+     *
      * @param url the URL of the product
      */
     public void setUrl(String url) {
@@ -87,6 +94,7 @@ public class Item implements Serializable {
 
     /**
      * Retrieves the portal of where the product comes from
+     *
      * @return the portal of where the product comes from
      */
     public String getPortal() {
@@ -95,6 +103,7 @@ public class Item implements Serializable {
 
     /**
      * Sets the portal of where the product comes from
+     *
      * @param portal the portal of where the product comes from
      */
     public void setPortal(String portal) {
@@ -103,6 +112,7 @@ public class Item implements Serializable {
 
     /**
      * Retrieves when the product listing is created
+     *
      * @return Date when the product listing is created
      */
     public Date getCreatedAt() {
@@ -111,6 +121,7 @@ public class Item implements Serializable {
 
     /**
      * Sets when the product listing is created
+     *
      * @param createdAt Date when the product listing is created
      */
     public void setCreatedAt(Date createdAt) {

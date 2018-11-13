@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 
 /**
- * @author kevinw
+ * @author Daniel Cheung, Tse Ho Nam, Chun Hiu Sang
  * <p>
  * <p>
  * Controller class that manage GUI interaction. Please see document about JavaFX for details.
@@ -90,6 +90,7 @@ public class Controller {
 
     /**
      * Generates a formatted string describing the items
+     *
      * @param products An Item list of products
      * @return Formatted string describing the items
      */
@@ -157,6 +158,9 @@ public class Controller {
         SearchRecord.newRefineSearch(query);
     }
 
+    /**
+     * Called when the loading button is pressed.
+     */
     @FXML
     private void actionLoad() {
         FileChooser fileChooser = new FileChooser();

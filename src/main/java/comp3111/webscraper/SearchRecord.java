@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * @author Daniel Cheung, Tse Ho Nam
  * SearchRecord stores a search that contains the keyword used for the search and the results of the search.
  * It also provides a save and load function to read and write history from and into files.
  */
@@ -136,6 +137,7 @@ public class SearchRecord implements Serializable {
      * Load all SearchRecords
      *
      * @param path The path where the save file is loaded
+     * @throws Exception File format not correct
      */
     public static void load(String path) throws Exception {
         System.out.println("Loading from " + path);
@@ -197,6 +199,11 @@ public class SearchRecord implements Serializable {
         return products;
     }
 
+    /**
+     * Returns all search records
+     *
+     * @return All search records
+     */
     public static ObservableList<SearchRecord> getAllSearchRecords() {
         return allSearchRecords;
     }
