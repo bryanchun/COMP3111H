@@ -5,7 +5,7 @@
 
 |  Member | Task | Task |
 |----|----|----|
-| CHEUNG, Daniel (`danvim`) | Basic 2 | Advacned 3 |
+| CHEUNG, Daniel (`danvim`) | Basic 2 | Advanced 3 |
 | CHUN, Hiu Sang (`bryanchun`) | Basic 4 | Advanced 1 |
 | TSE, Ho Nam (`mcreng`) | Basic 5 | Advanced 2 |
 
