@@ -34,6 +34,7 @@ class DistributionTab {
 
     /**
      * Called when initialize Distribution
+     *
      * @param currentProducts list of searched Items
      */
     void initDistribution(ObservableList<Item> currentProducts) {
@@ -99,6 +100,7 @@ class DistributionTab {
 
     /**
      * Extract the bins of price ranges
+     *
      * @param prices list of prices of searched Items
      * @param numOfBins number of bins for the histogram
      * @return priceRanges list of pairs representing list of start and end prices for a bin
@@ -128,6 +130,7 @@ class DistributionTab {
 
     /**
      * Convert the Pair with its key representing startPrice and value representing endPrice to String bin label
+     *
      * @param priceRange pair of start and end prices for a bin
      * @return String of "startPrice-endPrice" bin label
      */
@@ -138,6 +141,7 @@ class DistributionTab {
     /**
      * Compute the frequency of products in prices that falls under priceRange
      * Format: [key, value] is a priceRange
+     *
      * @param prices list of prices of searched Items
      * @param priceRange pair of start and end prices for a bin
      * @return frequency of prices falling into this price range
@@ -155,6 +159,7 @@ class DistributionTab {
 
     /**
      * Compute list of Item that is within the priceRange specified
+     *
      * @param currentProducts list of searched Items
      * @param priceRange pair of start and end prices for a bin
      * @return list of Items that fall into this price range
@@ -172,6 +177,7 @@ class DistributionTab {
 
     /**
      * Set bar color to highlight on double click and reset colors of other bars
+     *
      * @param bin XYChart.Data for getting node
      * @param series series of Data for plotting onto histogram
      */

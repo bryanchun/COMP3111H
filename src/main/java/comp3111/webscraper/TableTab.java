@@ -27,6 +27,8 @@ class TableTab {
 
     /**
      * Called when Controller initialize, instead of when Table Tab is clicked.
+     *
+     * @param currentProducts list of searched Items
      */
     void initTable(ObservableList<Item> currentProducts) {
         // Initialize mapping between table column text and Item attributes for setting list of Items to table
@@ -58,6 +60,7 @@ class TableTab {
 
     /**
      * Helper function for opening a URL from a browser
+     *
      * @param url URL link string of product page
      */
     private void openURL(String url) {
@@ -68,6 +71,7 @@ class TableTab {
 
     /**
      * Generates callback for URL cell
+     *
      * @return Callback for URL onClick handling
      */
     private <S,T> Callback<TableColumn<S,T>, TableCell<S,T>> newURLCellFactory() {
