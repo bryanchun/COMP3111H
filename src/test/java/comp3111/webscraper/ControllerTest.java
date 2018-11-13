@@ -1,8 +1,11 @@
 package comp3111.webscraper;
 
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -20,8 +23,6 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.file.Paths;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -252,6 +253,85 @@ public class ControllerTest extends ApplicationTest {
         // Delete the generated file
         File file = new File(filename);
         assertTrue(file.delete());
+    }
+
+    @Test
+    public void testInitDistribution() throws Exception {
+
+        final String BAR_DEFAULT_CLASS = "default-bar";
+        final String BAR_ACTIVE_CLASS = "active-bar";
+
+        SearchRecord.getAllSearchRecords().clear();
+
+        List<Item> products2 = Arrays.asList(
+                new Item("", 100.0,"",new Date(),"Test"),
+                new Item("", 40.0,"",new Date(),"Test"),
+                new Item("", 80.0,"",new Date(),"Test"),
+                new Item("", 0.0,"",new Date(),"Test"),
+                new Item("", 15.0,"",new Date(),"Test"),
+                new Item("", 20.0,"",new Date(),"Test"),
+                new Item("", 30.0,"",new Date(),"Test")
+        );
+        Map<String, Integer> labelledFrequencies = new HashMap<String, Integer>() {
+            {
+                put("0.0-10.0", 1);
+                put("10.0-20.0", 2);
+                put("20.0-30.0", 1);
+                put("30.0-40.0", 1);
+                put("40.0-50.0", 0);
+                put("50.0-60.0", 0);
+                put("60.0-70.0", 0);
+                put("70.0-80.0", 1);
+                put("80.0-90.0", 0);
+                put("90.0-100.0", 1);
+            }
+        };
+
+        TabPane tabpane = lookup("#tabpane").query();
+        tabpane.getSelectionModel().select(3);
+        BarChart barChart = lookup("#barChartHistogram").query();
+        SearchRecord.pushHistory(new SearchRecord("test", products2, false));
+
+
+        Platform.runLater(() -> {
+            XYChart.Series<String, Integer> series = (XYChart.Series<String, Integer>) barChart.getData().get(0);
+
+            // Check X, Y-axis labels
+            assertEquals(barChart.getXAxis().getLabel(), "Price");
+            assertEquals(barChart.getYAxis().getLabel(), "Frequency");
+
+
+            // Check Legend
+            assertEquals(series.getName(),
+                    "The selling price of " + SearchRecord.getLatestProperty().get().getKeyword());
+
+            // Check correctly filled in Distribution
+            for (XYChart.Data<String, Integer> bin : series.getData()) {
+                // Bug: bin.getYValue return Double instead of Integer
+                assertEquals(Double.valueOf(labelledFrequencies.get(bin.getXValue())),
+                        bin.getYValue());
+            }
+
+            // Check bar colour changes on double click
+            for (Integer binIndex : Arrays.asList(0, 2, 5)) {
+                Node binNode1 = series.getData().get(binIndex).getNode();
+//                Node binNode1 = lookup(".data"+String.valueOf(binIndex)).query();
+//                assertThat(binNode1.getStyleClass(), hasItem(BAR_DEFAULT_CLASS));
+//                doubleClickOn(binNode1);
+//                sleep(5000);
+                DistributionTab.setBarColor(series.getData().get(binIndex), series);
+                System.out.println(binNode1.getStyleClass());
+                assertTrue(binNode1.getStyleClass().contains(BAR_ACTIVE_CLASS));;
+                for (XYChart.Data otherBin : series.getData()) {
+                    Node otherBinNode = otherBin.getNode();
+                    if (otherBinNode != binNode1) {
+                        assertTrue(otherBinNode.getStyleClass().contains(BAR_DEFAULT_CLASS));
+                        assertFalse(otherBinNode.getStyleClass().contains(BAR_ACTIVE_CLASS));
+                    }
+                }
+            }
+        });
+
     }
 
     @Test

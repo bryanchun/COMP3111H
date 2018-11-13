@@ -9,6 +9,13 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 
+/**
+ * TableTab
+ *
+ * @author Bryan CHUN
+ *
+ * Fill in a table of searched products with their title, price, url, posted date and portal. Clicking on the URL will open the product link in the browser. Clicking on the column lebel will sort the products.
+ */
 
 class TableTab {
 
