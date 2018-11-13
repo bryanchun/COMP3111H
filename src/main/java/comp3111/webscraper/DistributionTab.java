@@ -14,7 +14,7 @@ import java.util.stream.IntStream;
 /**
  * DistributionTab
  *
- * @author Bryan CHUN
+ * @author Chun Hiu Sang
  *
  * Fill in a histogram of prices with the current products after a search. According to the range of the prices, 10 equal intervals are generated and products falling into respective price ranges will be allocated there. Double clicking one bar will change its color to blue, while all other bars restore to orange.
  */

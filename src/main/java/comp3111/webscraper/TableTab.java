@@ -12,7 +12,7 @@ import javafx.util.Callback;
 /**
  * TableTab
  *
- * @author Bryan CHUN
+ * @author Chun Hiu Sang
  *
  * Fill in a table of searched products with their title, price, url, posted date and portal. Clicking on the URL will open the product link in the browser. Clicking on the column lebel will sort the products.
  */
