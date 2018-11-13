@@ -14,7 +14,7 @@ import java.util.stream.IntStream;
 /**
  * DistributionTab
  *
- * @author Bryan CHUN
+ * @author Chun Hiu Sang
  *
  * Fill in a histogram of prices with the current products after a search. According to the range of the prices, 10 equal intervals are generated and products falling into respective price ranges will be allocated there. Double clicking one bar will change its color to blue, while all other bars restore to orange.
  */
@@ -34,7 +34,8 @@ class DistributionTab {
 
     /**
      * Called when initialize Distribution
-     * @param currentProducts
+     *
+     * @param currentProducts list of searched Items
      */
     void initDistribution(ObservableList<Item> currentProducts) {
 
@@ -90,9 +91,6 @@ class DistributionTab {
 
                             controller.consoleText.setValue(Controller.generateItemsConsoleOutput(binnedProducts.get(bin)));
                             setBarColor(bin, series);
-//                            series.getData().forEach(_bin ->
-//                                    System.out.println(_bin.getNode().getStyleClass()));
-
                         }
                     });
                 });
@@ -102,9 +100,10 @@ class DistributionTab {
 
     /**
      * Extract the bins of price ranges
-     * @param prices
-     * @param numOfBins
-     * @return priceRanges
+     *
+     * @param prices list of prices of searched Items
+     * @param numOfBins number of bins for the histogram
+     * @return priceRanges list of pairs representing list of start and end prices for a bin
      */
     private List<Pair<Double, Double>> getPriceRanges(List<Double> prices, Double numOfBins) {
         List<Pair<Double, Double>> priceRanges = new ArrayList<>();
@@ -131,7 +130,8 @@ class DistributionTab {
 
     /**
      * Convert the Pair with its key representing startPrice and value representing endPrice to String bin label
-     * @param priceRange
+     *
+     * @param priceRange pair of start and end prices for a bin
      * @return String of "startPrice-endPrice" bin label
      */
     private String getBinLabel(Pair<Double, Double> priceRange) {
@@ -141,9 +141,10 @@ class DistributionTab {
     /**
      * Compute the frequency of products in prices that falls under priceRange
      * Format: [key, value] is a priceRange
-     * @param prices
-     * @param priceRange
-     * @return frequency
+     *
+     * @param prices list of prices of searched Items
+     * @param priceRange pair of start and end prices for a bin
+     * @return frequency of prices falling into this price range
      */
     private Integer getFrequency(List<Double> prices, Pair<Double, Double> priceRange) {
         // Keep all 0-priced in first bin
@@ -158,9 +159,10 @@ class DistributionTab {
 
     /**
      * Compute list of Item that is within the priceRange specified
-     * @param currentProducts
-     * @param priceRange
-     * @return
+     *
+     * @param currentProducts list of searched Items
+     * @param priceRange pair of start and end prices for a bin
+     * @return list of Items that fall into this price range
      */
     private List<Item> getProductsInPriceRange(List<Item> currentProducts, Pair<Double, Double> priceRange) {
         // Keep all 0-priced in first bin
@@ -173,10 +175,13 @@ class DistributionTab {
         }
     }
 
-    public static void setBarColor(XYChart.Data<String, Integer> bin, XYChart.Series<String, Integer> series) {
-        // Flush Console and fill Console
-//        controller.consoleText.setValue(Controller.generateItemsConsoleOutput(binnedProducts.get(bin)));
-
+    /**
+     * Set bar color to highlight on double click and reset colors of other bars
+     *
+     * @param bin XYChart.Data for getting node
+     * @param series series of Data for plotting onto histogram
+     */
+    static void setBarColor(XYChart.Data<String, Integer> bin, XYChart.Series<String, Integer> series) {
         // Apply CSS style
         if (!bin.getNode().getStyleClass().contains(BAR_ACTIVE_CLASS)) {
             bin.getNode().getStyleClass().add(BAR_ACTIVE_CLASS);
