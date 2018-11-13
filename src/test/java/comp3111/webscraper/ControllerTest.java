@@ -317,10 +317,11 @@ public class ControllerTest extends ApplicationTest {
                 Node binNode1 = series.getData().get(binIndex).getNode();
 //                Node binNode1 = lookup(".data"+String.valueOf(binIndex)).query();
 //                assertThat(binNode1.getStyleClass(), hasItem(BAR_DEFAULT_CLASS));
-                doubleClickOn(binNode1);
-                sleep(5000);
+//                doubleClickOn(binNode1);
+//                sleep(5000);
+                DistributionTab.setBarColor(series.getData().get(binIndex), series);
                 System.out.println(binNode1.getStyleClass());
-//                assertTrue(binNode1.getStyleClass().contains(BAR_ACTIVE_CLASS));;
+                assertTrue(binNode1.getStyleClass().contains(BAR_ACTIVE_CLASS));;
                 for (XYChart.Data otherBin : series.getData()) {
                     Node otherBinNode = otherBin.getNode();
                     if (otherBinNode != binNode1) {

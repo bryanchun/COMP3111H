@@ -24,8 +24,8 @@ class DistributionTab {
     private Controller controller;
     private Double numOfBins = 10.0;
 
-    private final String BAR_DEFAULT_CLASS = "default-bar";
-    private final String BAR_ACTIVE_CLASS = "active-bar";
+    private static final String BAR_DEFAULT_CLASS = "default-bar";
+    private static final String BAR_ACTIVE_CLASS = "active-bar";
 
 
     DistributionTab(Controller controller) {
@@ -88,26 +88,10 @@ class DistributionTab {
                         if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
                             System.out.println("Double clicked");
 
-                            // Flush Console and fill Console
                             controller.consoleText.setValue(Controller.generateItemsConsoleOutput(binnedProducts.get(bin)));
-
-                            // Apply CSS style
-                            if (!bin.getNode().getStyleClass().contains(BAR_ACTIVE_CLASS)) {
-                                bin.getNode().getStyleClass().add(BAR_ACTIVE_CLASS);
-                            }
-                            bin.getNode().getStyleClass().removeIf(className -> className.equals(BAR_DEFAULT_CLASS));
-
-                            series.getData().forEach(otherBin -> {
-                                if (otherBin != bin) {
-                                    otherBin.getNode().getStyleClass().removeIf(className -> className.equals(BAR_ACTIVE_CLASS));
-                                    if (!otherBin.getNode().getStyleClass().contains(BAR_DEFAULT_CLASS)) {
-                                        otherBin.getNode().getStyleClass().add(BAR_DEFAULT_CLASS);
-                                    }
-                                }
-                            });
-
-                            series.getData().forEach(_bin ->
-                                    System.out.println(_bin.getNode().getStyleClass()));
+                            setBarColor(bin, series);
+//                            series.getData().forEach(_bin ->
+//                                    System.out.println(_bin.getNode().getStyleClass()));
 
                         }
                     });
@@ -187,5 +171,25 @@ class DistributionTab {
         else {
             return currentProducts.stream().filter(item -> priceRange.getKey() < item.getPrice() && item.getPrice() <= priceRange.getValue()).collect(Collectors.toList());
         }
+    }
+
+    public static void setBarColor(XYChart.Data<String, Integer> bin, XYChart.Series<String, Integer> series) {
+        // Flush Console and fill Console
+//        controller.consoleText.setValue(Controller.generateItemsConsoleOutput(binnedProducts.get(bin)));
+
+        // Apply CSS style
+        if (!bin.getNode().getStyleClass().contains(BAR_ACTIVE_CLASS)) {
+            bin.getNode().getStyleClass().add(BAR_ACTIVE_CLASS);
+        }
+        bin.getNode().getStyleClass().removeIf(className -> className.equals(BAR_DEFAULT_CLASS));
+
+        series.getData().forEach(otherBin -> {
+            if (otherBin != bin) {
+                otherBin.getNode().getStyleClass().removeIf(className -> className.equals(BAR_ACTIVE_CLASS));
+                if (!otherBin.getNode().getStyleClass().contains(BAR_DEFAULT_CLASS)) {
+                    otherBin.getNode().getStyleClass().add(BAR_DEFAULT_CLASS);
+                }
+            }
+        });
     }
 }
