@@ -58,7 +58,7 @@ class TableTab {
 
     /**
      * Helper function for opening a URL from a browser
-     * @param url
+     * @param url URL link string of product page
      */
     private void openURL(String url) {
         Stage stage = (Stage) controller.root.getScene().getWindow();
@@ -67,7 +67,8 @@ class TableTab {
     }
 
     /**
-     * Returns a callback function for URL onClick handling
+     * Generates callback for URL cell
+     * @return Callback for URL onClick handling
      */
     private <S,T> Callback<TableColumn<S,T>, TableCell<S,T>> newURLCellFactory() {
         return param -> new TableCell<S,T>(){

@@ -315,10 +315,6 @@ public class ControllerTest extends ApplicationTest {
             // Check bar colour changes on double click
             for (Integer binIndex : Arrays.asList(0, 2, 5)) {
                 Node binNode1 = series.getData().get(binIndex).getNode();
-//                Node binNode1 = lookup(".data"+String.valueOf(binIndex)).query();
-//                assertThat(binNode1.getStyleClass(), hasItem(BAR_DEFAULT_CLASS));
-//                doubleClickOn(binNode1);
-//                sleep(5000);
                 DistributionTab.setBarColor(series.getData().get(binIndex), series);
                 System.out.println(binNode1.getStyleClass());
                 assertTrue(binNode1.getStyleClass().contains(BAR_ACTIVE_CLASS));;
