@@ -252,7 +252,7 @@ public class ControllerTest extends ApplicationTest {
 
         // Delete the generated file
         File file = new File(filename);
-        assertTrue(file.delete());
+        file.delete();
     }
 
     @Test
