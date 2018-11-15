@@ -42,6 +42,9 @@ class TrendTab {
         ObservableList<Series<String, Double>> seriesList = FXCollections.observableArrayList();
         seriesList.add(series);
 
+        controller.trendAreaChart.getXAxis().setLabel("Last 7 days");
+        controller.trendAreaChart.getYAxis().setLabel("Average price");
+
         controller.trendSelected.addListener((o, oldValue, newValue) -> {
             final LocalDate today = LocalDate.now();
             productsInDaysUntil.clear();

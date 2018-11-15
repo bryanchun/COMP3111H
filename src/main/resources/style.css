@@ -2,10 +2,6 @@
     -fx-background-color: #f3622d;
 }
 
-.default-bar {
-    -fx-background-color: #f3622d;
-}
-
 .active-bar {
     -fx-background-color: #336699;
 }

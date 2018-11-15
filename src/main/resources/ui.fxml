@@ -37,7 +37,7 @@
                 <Button fx:id="buttonSearch" layoutX="145.0" layoutY="36.0" mnemonicParsing="false"
                         onAction="#actionSearch" prefHeight="25.0" prefWidth="120.0" text="Go"/>
                 <Button fx:id="buttonRefine" disable="true" layoutX="145.0" layoutY="88.0" mnemonicParsing="false"
-                        onAction="#actionRefineSearch" prefHeight="25.0" prefWidth="120.0" text="Refine Search"/>
+                        onAction="#actionRefineSearch" prefHeight="25.0" prefWidth="120.0" text="Refine"/>
 
             </AnchorPane>
             <AnchorPane>

@@ -24,7 +24,6 @@ class DistributionTab {
     private Controller controller;
     private Double numOfBins = 10.0;
 
-    private static final String BAR_DEFAULT_CLASS = "default-bar";
     private static final String BAR_ACTIVE_CLASS = "active-bar";
 
 
@@ -84,7 +83,6 @@ class DistributionTab {
 
                 // Set Double Click listeners for all nodes
                 series.getData().forEach(bin -> {
-                    bin.getNode().getStyleClass().add(BAR_DEFAULT_CLASS);
                     bin.getNode().setOnMouseClicked(event -> {
                         if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
                             System.out.println("Double clicked");
@@ -186,15 +184,9 @@ class DistributionTab {
         if (!bin.getNode().getStyleClass().contains(BAR_ACTIVE_CLASS)) {
             bin.getNode().getStyleClass().add(BAR_ACTIVE_CLASS);
         }
-        bin.getNode().getStyleClass().removeIf(className -> className.equals(BAR_DEFAULT_CLASS));
 
-        series.getData().forEach(otherBin -> {
-            if (otherBin != bin) {
-                otherBin.getNode().getStyleClass().removeIf(className -> className.equals(BAR_ACTIVE_CLASS));
-                if (!otherBin.getNode().getStyleClass().contains(BAR_DEFAULT_CLASS)) {
-                    otherBin.getNode().getStyleClass().add(BAR_DEFAULT_CLASS);
-                }
-            }
-        });
+        series.getData()
+                .filtered(otherBin -> otherBin != bin)
+                .forEach(b -> b.getNode().getStyleClass().removeIf(className -> className.equals(BAR_ACTIVE_CLASS)));
     }
 }
