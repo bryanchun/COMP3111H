@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Controller.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">project</a> &gt; <a href="index.source.html" class="el_package">comp3111.webscraper</a> &gt; <span class="el_source">Controller.java</span></div><h1>Controller.java</h1><pre class="source lang-java linenums">/**
+ *
+ */
+package comp3111.webscraper;
+
+
+import javafx.beans.property.*;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.scene.chart.AreaChart;
+import javafx.scene.chart.BarChart;
+import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
+
+import java.io.File;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+
+
+/**
+ * @author Daniel Cheung, Tse Ho Nam, Chun Hiu Sang
+ * &lt;p&gt;
+ * &lt;p&gt;
+ * Controller class that manage GUI interaction. Please see document about JavaFX for details.
+ */
+public class Controller {
+
+    @FXML
+    private Label labelCount;
+
+    @FXML
+    private Label labelPrice;
+
+    @FXML
+    private Hyperlink labelMin;
+
+    @FXML
+    private Hyperlink labelLatest;
+
+    @FXML
+    private TextField textFieldKeyword;
+
+    @FXML
+    private TextArea textAreaConsole;
+
+    @FXML
+    private Button buttonRefine;
+
+<span class="fc" id="L52">    private ObservableList&lt;Item&gt; currentProducts = FXCollections.observableArrayList();</span>
+
+    // TableTab elements
+    @FXML
+    public VBox root;
+    @FXML
+    public TableView&lt;Item&gt; table;
+    @FXML
+    public TableColumn&lt;Item, String&gt; titleColumn;
+    @FXML
+    public TableColumn&lt;Item, Double&gt; priceColumn;
+    @FXML
+    public TableColumn&lt;Item, String&gt; urlColumn;
+    @FXML
+    public TableColumn&lt;Item, Date&gt; postedDateColumn;
+    @FXML
+    public TableColumn&lt;Item, String&gt; portalColumn;
+
+    // DistributionTab elements
+    @FXML
+    public BarChart&lt;String, Integer&gt; barChartHistogram;
+
+    // TrendTab elements
+    @FXML
+    public ComboBox&lt;SearchRecord&gt; trendCombo;
+    @FXML
+    public AreaChart&lt;String, Double&gt; trendAreaChart;
+
+<span class="fc" id="L80">    public ObjectProperty&lt;SearchRecord&gt; trendSelected = new SimpleObjectProperty&lt;&gt;();</span>
+
+    /**
+     * StringProperty storing text that is shown in the console TextArea
+     */
+<span class="fc" id="L85">    public StringProperty consoleText = new SimpleStringProperty();</span>
+<span class="fc" id="L86">    private BooleanProperty isRefineDisabled = new SimpleBooleanProperty(true);</span>
+<span class="fc" id="L87">    private Boolean loadingFile = false;</span>
+<span class="fc" id="L88">    private String loadingFilename = &quot;&quot;;</span>
+
+
+    /**
+     * Generates a formatted string describing the items
+     *
+     * @param products An Item list of products
+     * @return Formatted string describing the items
+     */
+    public static String generateItemsConsoleOutput(List&lt;Item&gt; products) {
+<span class="fc" id="L98">        return products.stream().map(item -&gt; item.getTitle() + &quot;\t&quot; + item.getPrice() + &quot;\t&quot; + item.getUrl() + &quot;\n&quot;).collect(Collectors.joining());</span>
+    }
+
+    /**
+     * Default controller
+     */
+<span class="fc" id="L104">    public Controller() {</span>
+<span class="fc" id="L105">    }</span>
+
+    /**
+     * Default initializer. It is empty.
+     */
+    @FXML
+    private void initialize() {
+<span class="fc" id="L112">        textAreaConsole.textProperty().bind(consoleText);</span>
+<span class="fc" id="L113">        buttonRefine.disableProperty().bind(isRefineDisabled);</span>
+
+        // Listener is triggered when SearchRecord::latest is updated
+<span class="fc" id="L116">        SearchRecord.getLatestProperty().addListener((o, oldValue, newValue) -&gt; {</span>
+<span class="fc bfc" id="L117" title="All 2 branches covered.">            if (newValue != null) {</span>
+                // Updates consoleText
+<span class="pc bpc" id="L119" title="1 of 2 branches missed.">                consoleText.setValue((loadingFile ? &quot;--Data Loading from &quot; + loadingFilename + &quot;--\n&quot; : &quot;&quot;) + generateItemsConsoleOutput(newValue.getProducts()));</span>
+<span class="fc" id="L120">                loadingFile = false;</span>
+                // Updates current products
+<span class="fc" id="L122">                currentProducts.setAll(newValue.getProducts());</span>
+
+                // Updates isRefineDisabled
+<span class="fc bfc" id="L125" title="All 4 branches covered.">                isRefineDisabled.setValue(newValue.getHasSearchRefined() || currentProducts.size() == 0);</span>
+            }
+<span class="fc" id="L127">        });</span>
+
+        // Initialize Table factories and listeners
+<span class="fc" id="L130">        new TableTab(this).initTable(currentProducts);</span>
+
+        // Initialize Distribution
+<span class="fc" id="L133">        new DistributionTab(this).initDistribution(currentProducts);</span>
+
+        // Initializes TrendTab
+<span class="fc" id="L136">        new TrendTab(this);</span>
+<span class="fc" id="L137">    }</span>
+
+    /**
+     * Called when the search button is pressed.
+     */
+    @FXML
+    private void actionSearch() {
+<span class="fc" id="L144">        String query = textFieldKeyword.getText().trim();</span>
+<span class="fc bfc" id="L145" title="All 2 branches covered.">        if (!query.isEmpty()) {</span>
+<span class="fc" id="L146">            System.out.println(&quot;actionSearch: &quot; + query);</span>
+<span class="fc" id="L147">            SearchRecord.newSearch(query);</span>
+        }
+<span class="fc" id="L149">    }</span>
+
+    /**
+     * Called when the refine search button is pressed.
+     */
+    @FXML
+    private void actionRefineSearch() {
+<span class="fc" id="L156">        String query = textFieldKeyword.getText();</span>
+<span class="fc" id="L157">        System.out.println(&quot;actionRefineSearch: &quot; + query);</span>
+<span class="fc" id="L158">        SearchRecord.newRefineSearch(query);</span>
+<span class="fc" id="L159">    }</span>
+
+    /**
+     * Called when the loading button is pressed.
+     */
+    @FXML
+    private void actionLoad() {
+<span class="nc" id="L166">        FileChooser fileChooser = new FileChooser();</span>
+<span class="nc" id="L167">        fileChooser.setTitle(&quot;Open Resource File&quot;);</span>
+<span class="nc" id="L168">        FileChooser.ExtensionFilter fileExtensions =</span>
+                new FileChooser.ExtensionFilter(&quot;Data&quot;, &quot;*.dat&quot;);
+<span class="nc" id="L170">        fileChooser.getExtensionFilters().add(fileExtensions);</span>
+<span class="nc" id="L171">        File file = fileChooser.showOpenDialog(root.getScene().getWindow());</span>
+<span class="nc" id="L172">        loadingFile = true;</span>
+<span class="nc" id="L173">        loadingFilename = file.getPath();</span>
+        try {
+<span class="nc" id="L175">            SearchRecord.load(file.getPath());</span>
+<span class="nc" id="L176">        } catch (Exception e) {</span>
+<span class="nc" id="L177">            loadingFile = false;</span>
+<span class="nc" id="L178">            e.printStackTrace();</span>
+<span class="nc" id="L179">        }</span>
+<span class="nc" id="L180">    }</span>
+
+    /**
+     * Called when save button is pressed, prompts a file chooser and saves the file.
+     */
+    @FXML
+    private void actionSave() {
+<span class="nc" id="L187">        FileChooser fileChooser = new FileChooser();</span>
+<span class="nc" id="L188">        fileChooser.setTitle(&quot;Save Resource File&quot;);</span>
+<span class="nc" id="L189">        FileChooser.ExtensionFilter fileExtensions =</span>
+                new FileChooser.ExtensionFilter(&quot;Data&quot;, &quot;*.dat&quot;);
+<span class="nc" id="L191">        fileChooser.setInitialFileName(&quot;record.dat&quot;);</span>
+<span class="nc" id="L192">        fileChooser.getExtensionFilters().add(fileExtensions);</span>
+<span class="nc" id="L193">        File file = fileChooser.showSaveDialog(root.getScene().getWindow());</span>
+        try {
+<span class="nc" id="L195">            SearchRecord.save(file.getPath());</span>
+<span class="nc" id="L196">        } catch (Exception e) {</span>
+<span class="nc" id="L197">            e.printStackTrace();</span>
+<span class="nc" id="L198">        }</span>
+<span class="nc" id="L199">    }</span>
+
+    /**
+     * Called when the new button is pressed. Very dummy action - print something in the command prompt.
+     */
+    @FXML
+    private void actionNew() {
+<span class="fc" id="L206">        System.out.println(&quot;actionNew&quot;);</span>
+<span class="fc" id="L207">    }</span>
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

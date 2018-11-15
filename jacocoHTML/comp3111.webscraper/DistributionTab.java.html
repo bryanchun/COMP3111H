@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DistributionTab.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">project</a> &gt; <a href="index.source.html" class="el_package">comp3111.webscraper</a> &gt; <span class="el_source">DistributionTab.java</span></div><h1>DistributionTab.java</h1><pre class="source lang-java linenums">package comp3111.webscraper;
+
+import javafx.application.Platform;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
+import javafx.scene.chart.XYChart;
+import javafx.scene.input.MouseButton;
+import javafx.util.Pair;
+
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+/**
+ * DistributionTab
+ *
+ * @author Chun Hiu Sang
+ *
+ * Fill in a histogram of prices with the current products after a search. According to the range of the prices, 10 equal intervals are generated and products falling into respective price ranges will be allocated there. Double clicking one bar will change its color to blue, while all other bars restore to orange.
+ */
+
+class DistributionTab {
+
+    private Controller controller;
+<span class="fc" id="L25">    private Double numOfBins = 10.0;</span>
+
+    private static final String BAR_DEFAULT_CLASS = &quot;default-bar&quot;;
+    private static final String BAR_ACTIVE_CLASS = &quot;active-bar&quot;;
+
+
+<span class="fc" id="L31">    DistributionTab(Controller controller) {</span>
+<span class="fc" id="L32">        this.controller = controller;</span>
+<span class="fc" id="L33">    }</span>
+
+    /**
+     * Called when initialize Distribution
+     *
+     * @param currentProducts list of searched Items
+     */
+    void initDistribution(ObservableList&lt;Item&gt; currentProducts) {
+
+        // Set gaps and axes
+<span class="fc" id="L43">        controller.barChartHistogram.setCategoryGap(0);</span>
+<span class="fc" id="L44">        controller.barChartHistogram.setBarGap(0);</span>
+<span class="fc" id="L45">        controller.barChartHistogram.getXAxis().setLabel(&quot;Price&quot;);</span>
+<span class="fc" id="L46">        controller.barChartHistogram.getYAxis().setLabel(&quot;Frequency&quot;);</span>
+
+        // Update Distribution on every new search
+<span class="fc" id="L49">        currentProducts.addListener((ListChangeListener&lt;Item&gt;) change -&gt; {</span>
+
+<span class="fc" id="L51">            Platform.runLater(() -&gt; {</span>
+                // Create new series container for data
+<span class="fc" id="L53">                XYChart.Series&lt;String, Integer&gt; series = new XYChart.Series&lt;&gt;();</span>
+                // Set Legend by search keyword
+<span class="fc" id="L55">                series.setName(&quot;The selling price of &quot; + SearchRecord.getLatestProperty().get().getKeyword());</span>
+
+                // Transform currentProducts to prices
+<span class="fc" id="L58">                List&lt;Double&gt; prices = currentProducts.stream().map(Item::getPrice).collect(Collectors.toList());</span>
+<span class="fc" id="L59">                HashMap&lt;XYChart.Data&lt;String, Integer&gt;, List&lt;Item&gt;&gt; binnedProducts = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L60">                List&lt;Pair&lt;Double, Double&gt;&gt;  priceRanges = getPriceRanges(prices, numOfBins);</span>
+<span class="fc" id="L61">                System.out.println(&quot;getPriceRanges count: &quot; + priceRanges.size());</span>
+
+                // Add bins to barChart and keep mapping between XYChart.Data and list of products for this range
+<span class="fc" id="L64">                priceRanges.forEach(priceRange -&gt; {</span>
+                    // Create bin for each price range
+<span class="fc" id="L66">                    XYChart.Data&lt;String, Integer&gt; bin = new XYChart.Data&lt;&gt;(</span>
+<span class="fc" id="L67">                            getBinLabel(priceRange),</span>
+<span class="fc" id="L68">                            getFrequency(prices, priceRange));</span>
+
+                    // Apply bin label and frequency for each priceRange to series
+<span class="fc" id="L71">                    series.getData().add(bin);</span>
+
+                    // Store a map between bins and the list of items whose price falls within this priceRange
+<span class="fc" id="L74">                    binnedProducts.put(</span>
+                            bin,
+<span class="fc" id="L76">                            getProductsInPriceRange(currentProducts, priceRange)</span>
+                    );
+<span class="fc" id="L78">                });</span>
+
+                // Reset all series
+<span class="fc" id="L81">                controller.barChartHistogram.getData().clear();</span>
+                // Apply the new series
+<span class="fc" id="L83">                controller.barChartHistogram.getData().add(series);</span>
+
+                // Set Double Click listeners for all nodes
+<span class="fc" id="L86">                series.getData().forEach(bin -&gt; {</span>
+<span class="fc" id="L87">                    bin.getNode().getStyleClass().add(BAR_DEFAULT_CLASS);</span>
+<span class="fc" id="L88">                    bin.getNode().setOnMouseClicked(event -&gt; {</span>
+<span class="nc bnc" id="L89" title="All 4 branches missed.">                        if (event.getButton().equals(MouseButton.PRIMARY) &amp;&amp; event.getClickCount() == 2) {</span>
+<span class="nc" id="L90">                            System.out.println(&quot;Double clicked&quot;);</span>
+
+<span class="nc" id="L92">                            controller.consoleText.setValue(Controller.generateItemsConsoleOutput(binnedProducts.get(bin)));</span>
+<span class="nc" id="L93">                            setBarColor(bin, series);</span>
+                        }
+<span class="nc" id="L95">                    });</span>
+<span class="fc" id="L96">                });</span>
+<span class="fc" id="L97">            });</span>
+<span class="fc" id="L98">        });</span>
+<span class="fc" id="L99">    }</span>
+
+    /**
+     * Extract the bins of price ranges
+     *
+     * @param prices list of prices of searched Items
+     * @param numOfBins number of bins for the histogram
+     * @return priceRanges list of pairs representing list of start and end prices for a bin
+     */
+    private List&lt;Pair&lt;Double, Double&gt;&gt; getPriceRanges(List&lt;Double&gt; prices, Double numOfBins) {
+<span class="fc" id="L109">        List&lt;Pair&lt;Double, Double&gt;&gt; priceRanges = new ArrayList&lt;&gt;();</span>
+
+        // If prices has one element only, add [0, price] and return
+<span class="fc bfc" id="L112" title="All 2 branches covered.">        if (prices.size() == 1) {</span>
+<span class="fc" id="L113">            priceRanges.add(new Pair&lt;&gt;(0.0, prices.get(0)));</span>
+        }
+        // If prices has more than one element, calculate price ranges
+<span class="fc bfc" id="L116" title="All 2 branches covered.">        else if (prices.size() &gt; 1) {</span>
+<span class="fc" id="L117">            Double range = Collections.max(prices) - Collections.min(prices);</span>
+<span class="fc" id="L118">            Double binWidth = range / numOfBins;</span>
+<span class="fc" id="L119">            IntStream.range(0, 10).forEach(i -&gt; {</span>
+<span class="fc bfc" id="L120" title="All 2 branches covered.">                if (i == 9) {</span>
+<span class="fc" id="L121">                    priceRanges.add(new Pair&lt;&gt;(i * binWidth, Collections.max(prices)));</span>
+                } else {
+<span class="fc" id="L123">                    priceRanges.add(new Pair&lt;&gt;(i * binWidth, (i+1) * binWidth));</span>
+                }
+<span class="fc" id="L125">            });</span>
+        }
+        // else prices is empty, return empty priceRanges
+<span class="fc" id="L128">        return priceRanges;</span>
+    }
+
+    /**
+     * Convert the Pair with its key representing startPrice and value representing endPrice to String bin label
+     *
+     * @param priceRange pair of start and end prices for a bin
+     * @return String of &quot;startPrice-endPrice&quot; bin label
+     */
+    private String getBinLabel(Pair&lt;Double, Double&gt; priceRange) {
+<span class="fc" id="L138">        return String.format(&quot;%.1f&quot;, priceRange.getKey()) + &quot;-&quot; + String.format(&quot;%.1f&quot;, priceRange.getValue());</span>
+    }
+
+    /**
+     * Compute the frequency of products in prices that falls under priceRange
+     * Format: [key, value] is a priceRange
+     *
+     * @param prices list of prices of searched Items
+     * @param priceRange pair of start and end prices for a bin
+     * @return frequency of prices falling into this price range
+     */
+    private Integer getFrequency(List&lt;Double&gt; prices, Pair&lt;Double, Double&gt; priceRange) {
+        // Keep all 0-priced in first bin
+<span class="fc bfc" id="L151" title="All 2 branches covered.">        if (priceRange.getKey() == 0.0) {</span>
+<span class="pc bpc" id="L152" title="1 of 4 branches missed.">            return prices.stream().filter(price -&gt; priceRange.getKey() &lt;= price &amp;&amp; price &lt;= priceRange.getValue()).toArray().length;</span>
+        }
+        // Break boundary points by a right-inclusive rule
+        else {
+<span class="fc bfc" id="L156" title="All 4 branches covered.">            return prices.stream().filter(price -&gt; priceRange.getKey() &lt; price &amp;&amp; price &lt;= priceRange.getValue()).toArray().length;</span>
+        }
+    }
+
+    /**
+     * Compute list of Item that is within the priceRange specified
+     *
+     * @param currentProducts list of searched Items
+     * @param priceRange pair of start and end prices for a bin
+     * @return list of Items that fall into this price range
+     */
+    private List&lt;Item&gt; getProductsInPriceRange(List&lt;Item&gt; currentProducts, Pair&lt;Double, Double&gt; priceRange) {
+        // Keep all 0-priced in first bin
+<span class="fc bfc" id="L169" title="All 2 branches covered.">        if (priceRange.getKey() == 0.0) {</span>
+<span class="pc bpc" id="L170" title="1 of 4 branches missed.">            return currentProducts.stream().filter(item -&gt; priceRange.getKey() &lt;= item.getPrice() &amp;&amp; item.getPrice() &lt;= priceRange.getValue()).collect(Collectors.toList());</span>
+        }
+        // Break boundary points by a right-inclusive rule
+        else {
+<span class="fc bfc" id="L174" title="All 4 branches covered.">            return currentProducts.stream().filter(item -&gt; priceRange.getKey() &lt; item.getPrice() &amp;&amp; item.getPrice() &lt;= priceRange.getValue()).collect(Collectors.toList());</span>
+        }
+    }
+
+    /**
+     * Set bar color to highlight on double click and reset colors of other bars
+     *
+     * @param bin XYChart.Data for getting node
+     * @param series series of Data for plotting onto histogram
+     */
+    static void setBarColor(XYChart.Data&lt;String, Integer&gt; bin, XYChart.Series&lt;String, Integer&gt; series) {
+        // Apply CSS style
+<span class="pc bpc" id="L186" title="1 of 2 branches missed.">        if (!bin.getNode().getStyleClass().contains(BAR_ACTIVE_CLASS)) {</span>
+<span class="fc" id="L187">            bin.getNode().getStyleClass().add(BAR_ACTIVE_CLASS);</span>
+        }
+<span class="fc" id="L189">        bin.getNode().getStyleClass().removeIf(className -&gt; className.equals(BAR_DEFAULT_CLASS));</span>
+
+<span class="fc" id="L191">        series.getData().forEach(otherBin -&gt; {</span>
+<span class="fc bfc" id="L192" title="All 2 branches covered.">            if (otherBin != bin) {</span>
+<span class="fc" id="L193">                otherBin.getNode().getStyleClass().removeIf(className -&gt; className.equals(BAR_ACTIVE_CLASS));</span>
+<span class="fc bfc" id="L194" title="All 2 branches covered.">                if (!otherBin.getNode().getStyleClass().contains(BAR_DEFAULT_CLASS)) {</span>
+<span class="fc" id="L195">                    otherBin.getNode().getStyleClass().add(BAR_DEFAULT_CLASS);</span>
+                }
+            }
+<span class="fc" id="L198">        });</span>
+<span class="fc" id="L199">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

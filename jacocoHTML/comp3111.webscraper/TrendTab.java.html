@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TrendTab.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">project</a> &gt; <a href="index.source.html" class="el_package">comp3111.webscraper</a> &gt; <span class="el_source">TrendTab.java</span></div><h1>TrendTab.java</h1><pre class="source lang-java linenums">package comp3111.webscraper;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.scene.Node;
+import javafx.scene.chart.XYChart.Data;
+import javafx.scene.chart.XYChart.Series;
+import javafx.scene.input.MouseButton;
+import javafx.util.StringConverter;
+
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.IntStream;
+
+import static java.time.temporal.ChronoUnit.DAYS;
+
+/**
+ * TrendTab
+ *
+ * @author CHEUNG, Danel
+ *
+ * Displays an AreaChart and a combo box, and updates the chart when a searched keyword is selected in the combo box, the last 7 days of the average prices of the product listings created on that day, and updates the console when the user double clicks on a point on the chart, to show the products on that day.
+ */
+class TrendTab {
+    private static final int MAX_DAYS = 7;
+    private static final String DATUM_ACTIVE_CLASS = &quot;active-datum&quot;;
+<span class="fc" id="L31">    private static final DateTimeFormatter LABEL_DATE_FORMATTER = DateTimeFormatter.ofPattern(&quot;MM/dd/yyyy&quot;);</span>
+
+    private Controller controller;
+<span class="fc" id="L34">    private Series&lt;String, Double&gt; series = new Series&lt;&gt;();</span>
+<span class="fc" id="L35">    private ObservableList&lt;Data&lt;String, Double&gt;&gt; data = series.getData();</span>
+<span class="fc" id="L36">    private List&lt;List&lt;Item&gt;&gt; productsInDaysUntil = new ArrayList&lt;&gt;();</span>
+
+    /**
+     * Constructor that initializes the trend tab
+     * @param controller Controller in use
+     */
+<span class="fc" id="L42">    TrendTab(Controller controller) {</span>
+<span class="fc" id="L43">        this.controller = controller;</span>
+<span class="fc" id="L44">        ObservableList&lt;Series&lt;String, Double&gt;&gt; seriesList = FXCollections.observableArrayList();</span>
+<span class="fc" id="L45">        seriesList.add(series);</span>
+
+<span class="fc" id="L47">        controller.trendSelected.addListener((o, oldValue, newValue) -&gt; {</span>
+<span class="fc" id="L48">            final LocalDate today = LocalDate.now();</span>
+<span class="fc" id="L49">            productsInDaysUntil.clear();</span>
+<span class="fc" id="L50">            data.clear();</span>
+
+<span class="fc" id="L52">            IntStream.range(0, MAX_DAYS).forEach(i -&gt; productsInDaysUntil.add(new ArrayList&lt;&gt;()));</span>
+
+<span class="fc" id="L54">            newValue.getProducts().forEach(item -&gt; {</span>
+<span class="fc" id="L55">                int i = (int) DAYS.between(localDateFromDate(item.getCreatedAt()), today);</span>
+<span class="fc bfc" id="L56" title="All 4 branches covered.">                if (i &lt; MAX_DAYS &amp;&amp; i &gt;= 0) productsInDaysUntil.get(i).add(item);</span>
+<span class="fc" id="L57">            });</span>
+
+<span class="fc" id="L59">            IntStream.range(0, productsInDaysUntil.size()).map(i -&gt; MAX_DAYS - i - 1).forEachOrdered(i -&gt; productsInDaysUntil</span>
+<span class="fc" id="L60">                    .get(i)</span>
+<span class="fc" id="L61">                    .stream()</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">                    .filter(item -&gt; item.getPrice() &gt; 0.0)</span>
+<span class="fc" id="L63">                    .mapToDouble(Item::getPrice)</span>
+<span class="fc" id="L64">                    .average()</span>
+<span class="fc" id="L65">                    .ifPresent(avg -&gt; {</span>
+<span class="fc" id="L66">                        Data&lt;String, Double&gt; datum = new Data&lt;&gt;(today.minusDays(i).format(LABEL_DATE_FORMATTER), avg);</span>
+<span class="fc" id="L67">                        data.add(datum);</span>
+<span class="fc" id="L68">                        datum.getNode().setOnMouseClicked(event -&gt; {</span>
+<span class="fc bfc" id="L69" title="All 4 branches covered.">                            if (event.getButton().equals(MouseButton.PRIMARY) &amp;&amp; event.getClickCount() == 2)</span>
+<span class="fc" id="L70">                                selectDate(i, datum.getNode());</span>
+<span class="fc" id="L71">                        });</span>
+<span class="fc" id="L72">                    })</span>
+            );
+
+<span class="fc" id="L75">            series.setName(&quot;The average selling price of the &quot; + newValue.getKeyword());</span>
+<span class="fc" id="L76">        });</span>
+
+<span class="fc" id="L78">        controller.trendAreaChart.setData(seriesList);</span>
+<span class="fc" id="L79">        controller.trendCombo.setConverter(new StringConverter&lt;SearchRecord&gt;() {</span>
+            @Override
+            public String toString(SearchRecord object) {
+<span class="fc" id="L82">                return object.getKeyword();</span>
+            }
+
+            @Override
+            public SearchRecord fromString(String string) {
+<span class="nc" id="L87">                return null;</span>
+            }
+        });
+
+<span class="fc" id="L91">        controller.trendCombo.setItems(SearchRecord.getAllSearchRecords());</span>
+<span class="fc" id="L92">        controller.trendCombo.valueProperty().addListener((o, oldValue, newValue) -&gt; controller.trendSelected.set(newValue));</span>
+<span class="fc" id="L93">    }</span>
+
+    /**
+     * Converts a java.util.Date into a LocalDate class
+     * @param date a Date
+     * @return a LocalDate
+     */
+    private static LocalDate localDateFromDate(Date date) {
+<span class="fc" id="L101">        return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();</span>
+    }
+
+    /**
+     * Called when a point is selected This will update console to show listings created on the date described by i-th product array in productsInDaysUntil.
+     * @param i i-th product array in productsInDaysUntil
+     * @param node corresponding data point node that represents the average price of the day
+     */
+    private void selectDate(int i, Node node) {
+<span class="fc" id="L110">        controller.consoleText.set(Controller.generateItemsConsoleOutput(productsInDaysUntil.get(i)));</span>
+<span class="fc" id="L111">        data.forEach(datum -&gt; datum.getNode().getStyleClass().removeIf(className -&gt; className.equals(DATUM_ACTIVE_CLASS)));</span>
+<span class="fc" id="L112">        node.getStyleClass().add(DATUM_ACTIVE_CLASS);</span>
+<span class="fc" id="L113">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

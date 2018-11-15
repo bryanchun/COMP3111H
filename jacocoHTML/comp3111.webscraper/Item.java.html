@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Item.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">project</a> &gt; <a href="index.source.html" class="el_package">comp3111.webscraper</a> &gt; <span class="el_source">Item.java</span></div><h1>Item.java</h1><pre class="source lang-java linenums">package comp3111.webscraper;
+
+
+import java.io.Serializable;
+import java.util.Date;
+
+/**
+ * @author Daniel Cheung
+ * Represents a product scraped from an online portal
+ */
+public class Item implements Serializable {
+    private String title;
+    private double price;
+    private String url;
+    private Date createdAt;
+    private String portal;
+
+    /**
+     * Default Constructor
+     */
+<span class="fc" id="L21">    public Item() {</span>
+<span class="fc" id="L22">    }</span>
+
+    /**
+     * Constructs Item with all fields
+     *
+     * @param title     The product title
+     * @param price     The product price
+     * @param url       The product details URL
+     * @param createdAt The product creation date
+     * @param portal    The name of the portal the product comes from
+     */
+<span class="fc" id="L33">    public Item(String title, double price, String url, Date createdAt, String portal) {</span>
+<span class="fc" id="L34">        this.title = title;</span>
+<span class="fc" id="L35">        this.price = price;</span>
+<span class="fc" id="L36">        this.url = url;</span>
+<span class="fc" id="L37">        this.createdAt = createdAt;</span>
+<span class="fc" id="L38">        this.portal = portal;</span>
+<span class="fc" id="L39">    }</span>
+
+    /**
+     * Retrieves the title of the product
+     *
+     * @return the title of the product
+     */
+    public String getTitle() {
+<span class="fc" id="L47">        return title;</span>
+    }
+
+    /**
+     * Sets the title of the product
+     *
+     * @param title the title of the product
+     */
+    public void setTitle(String title) {
+<span class="fc" id="L56">        this.title = title;</span>
+<span class="fc" id="L57">    }</span>
+
+    /**
+     * Retrieves the price of the product
+     *
+     * @return the price of the product
+     */
+    public double getPrice() {
+<span class="fc" id="L65">        return price;</span>
+    }
+
+    /**
+     * Sets the price of the product
+     *
+     * @param price the price of the product
+     */
+    public void setPrice(double price) {
+<span class="fc" id="L74">        this.price = price;</span>
+<span class="fc" id="L75">    }</span>
+
+    /**
+     * Retrieves the URL of the product
+     *
+     * @return the URL of the product
+     */
+    public String getUrl() {
+<span class="fc" id="L83">        return url;</span>
+    }
+
+    /**
+     * Sets the URL of the product
+     *
+     * @param url the URL of the product
+     */
+    public void setUrl(String url) {
+<span class="fc" id="L92">        this.url = url;</span>
+<span class="fc" id="L93">    }</span>
+
+    /**
+     * Retrieves the portal of where the product comes from
+     *
+     * @return the portal of where the product comes from
+     */
+    public String getPortal() {
+<span class="fc" id="L101">        return portal;</span>
+    }
+
+    /**
+     * Sets the portal of where the product comes from
+     *
+     * @param portal the portal of where the product comes from
+     */
+    public void setPortal(String portal) {
+<span class="fc" id="L110">        this.portal = portal;</span>
+<span class="fc" id="L111">    }</span>
+
+    /**
+     * Retrieves when the product listing is created
+     *
+     * @return Date when the product listing is created
+     */
+    public Date getCreatedAt() {
+<span class="fc" id="L119">        return createdAt;</span>
+    }
+
+    /**
+     * Sets when the product listing is created
+     *
+     * @param createdAt Date when the product listing is created
+     */
+    public void setCreatedAt(Date createdAt) {
+<span class="fc" id="L128">        this.createdAt = createdAt;</span>
+<span class="fc" id="L129">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

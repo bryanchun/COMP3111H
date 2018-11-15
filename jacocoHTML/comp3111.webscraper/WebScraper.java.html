@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WebScraper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">project</a> &gt; <a href="index.source.html" class="el_package">comp3111.webscraper</a> &gt; <span class="el_source">WebScraper.java</span></div><h1>WebScraper.java</h1><pre class="source lang-java linenums">package comp3111.webscraper;
+
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.html.*;
+import jdk.nashorn.api.scripting.ScriptObjectMirror;
+
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+
+
+/**
+ * @author CHEUNG, Daniel
+ *
+ * WebScraper provide a sample code that scrape web content. After it is constructed, you can call the method scrape with a keyword,
+ * the client will go to the default url and parse the page by looking at the HTML DOM.
+ * &lt;br/&gt;
+ * In this particular sample code, it access to craigslist.org. You can directly search on an entry by typing the URL
+ * &lt;br/&gt;
+ * https://newyork.craigslist.org/search/sss?sort=rel&amp;amp;query=KEYWORD
+ * &lt;br/&gt;
+ * where KEYWORD is the keyword you want to search.
+ * &lt;br/&gt;
+ * Assume you are working on Chrome, paste the url into your browser and press F12 to load the source code of the HTML. You might be freak
+ * out if you have never seen a HTML source code before. Keep calm and move on. Press Ctrl-Shift-C (or CMD-Shift-C if you got a mac) and move your
+ * mouse cursor around, different part of the HTML code and the corresponding the HTML objects will be highlighted. Explore your HTML page from
+ * body &amp;rarr; section class=&quot;page-container&quot; &amp;rarr; form id=&quot;searchform&quot; &amp;rarr; div class=&quot;content&quot; &amp;rarr; ul class=&quot;rows&quot; &amp;rarr; any one of the multiple
+ * li class=&quot;result-row&quot; &amp;rarr; p class=&quot;result-info&quot;. You might see something like this:
+ * &lt;br/&gt;
+ * &lt;pre&gt;
+ * {@code
+ *    &lt;p class=&quot;result-info&quot;&gt;
+ *        &lt;span class=&quot;icon icon-star&quot; role=&quot;button&quot; title=&quot;save this post in your favorites list&quot;&gt;
+ *           &lt;span class=&quot;screen-reader-text&quot;&gt;favorite this post&lt;/span&gt;
+ *       &lt;/span&gt;
+ *       &lt;time class=&quot;result-date&quot; datetime=&quot;2018-06-21 01:58&quot; title=&quot;Thu 21 Jun 01:58:44 AM&quot;&gt;Jun 21&lt;/time&gt;
+ *       &lt;a href=&quot;https://newyork.craigslist.org/que/clt/d/green-star-polyp-gsp-on-rock/6596253604.html&quot; data-id=&quot;6596253604&quot; class=&quot;result-title hdrlnk&quot;&gt;Green Star Polyp GSP on a rock frag&lt;/a&gt;
+ *       &lt;span class=&quot;result-meta&quot;&gt;
+ *               &lt;span class=&quot;result-price&quot;&gt;$15&lt;/span&gt;
+ *               &lt;span class=&quot;result-tags&quot;&gt;
+ *                   pic
+ *                   &lt;span class=&quot;maptag&quot; data-pid=&quot;6596253604&quot;&gt;map&lt;/span&gt;
+ *               &lt;/span&gt;
+ *               &lt;span class=&quot;banish icon icon-trash&quot; role=&quot;button&quot;&gt;
+ *                   &lt;span class=&quot;screen-reader-text&quot;&gt;hide this posting&lt;/span&gt;
+ *               &lt;/span&gt;
+ *           &lt;span class=&quot;unbanish icon icon-trash red&quot; role=&quot;button&quot; aria-hidden=&quot;true&quot;&gt;&lt;/span&gt;
+ *           &lt;a href=&quot;#&quot; class=&quot;restore-link&quot;&gt;
+ *               &lt;span class=&quot;restore-narrow-text&quot;&gt;restore&lt;/span&gt;
+ *               &lt;span class=&quot;restore-wide-text&quot;&gt;restore this posting&lt;/span&gt;
+ *           &lt;/a&gt;
+ *       &lt;/span&gt;
+ *   &lt;/p&gt;
+ * }
+ * &lt;/pre&gt;
+ * &lt;br/&gt;
+ * The code
+ * &lt;pre&gt;
+ * {@code
+ * List&lt;?&gt; items = (List&lt;?&gt;) page.getByXPath(&quot;//li[@class='result-row']&quot;);
+ * }
+ * &lt;/pre&gt;
+ * extracts all result-row and stores the corresponding HTML elements to a list called items. Later in the loop it extracts the anchor tag
+ * &amp;lsaquo; a &amp;rsaquo; to retrieve the display text (by .asText()) and the link (by .getHrefAttribute()). It also extracts
+ */
+public class WebScraper {
+
+    private static final float USD2HKD = 7.8f;
+<span class="fc" id="L78">    private static final DateFormat ISO_8061_FORMATTER = new SimpleDateFormat(&quot;yyyy-MM-dd'T'HH:mm:ss.SSSZ&quot;); //2017-06-08T15:22:17.000Z</span>
+<span class="fc" id="L79">    private static final DateFormat CRAIGSLIST_DATETIME_FORMATTER = new SimpleDateFormat(&quot;yyyy-MM-dd HH:mm&quot;); //2017-06-08T15:22:17.000Z</span>
+    private static final String PORTAL_CRAIGSLIST = &quot;Craigslist&quot;;
+    private static final String PORTAL_CAROUSELL = &quot;Carousell&quot;;
+
+
+    private WebClient client;
+<span class="fc" id="L85">    private ScriptEngine scriptEngine = new ScriptEngineManager().getEngineByName(&quot;nashorn&quot;);</span>
+
+    /**
+     * Default Constructor
+     */
+<span class="fc" id="L90">    WebScraper() {</span>
+<span class="fc" id="L91">        client = new WebClient();</span>
+<span class="fc" id="L92">        client.getOptions().setCssEnabled(false);</span>
+<span class="fc" id="L93">        client.getOptions().setJavaScriptEnabled(false);</span>
+<span class="fc" id="L94">    }</span>
+
+    /**
+     * Scrapes from all portals
+     *
+     * @param keyword - the keyword you want to search
+     * @return A list of Item that has found. A zero size list is return if nothing is found. Null if any exception (e.g. no connectivity)
+     */
+    List&lt;Item&gt; scrape(String keyword) {
+
+<span class="fc" id="L104">        List&lt;Item&gt; allItems = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L105">        allItems.addAll(scrapeCraigslist(keyword));</span>
+<span class="fc" id="L106">        allItems.addAll(scrapeCarousell(keyword));</span>
+
+<span class="fc" id="L108">        allItems.sort((a, b) -&gt; Boolean.compare(a.getPortal().equals(PORTAL_CRAIGSLIST), b.getPortal().equals(PORTAL_CRAIGSLIST)));</span>
+<span class="fc" id="L109">        allItems.sort(Comparator.comparingDouble(Item::getPrice));</span>
+
+<span class="fc" id="L111">        return allItems;</span>
+    }
+
+    /**
+     * Scrapes from Carousell
+     *
+     * @param keyword The search keyword
+     * @return A List of search results as Items
+     */
+    private List&lt;Item&gt; scrapeCarousell(String keyword) {
+<span class="fc" id="L121">        List&lt;Item&gt; results = new ArrayList&lt;&gt;();</span>
+
+        try {
+<span class="fc" id="L124">            String searchURL = &quot;https://hk.carousell.com/search/products/?query=&quot; + URLEncoder.encode(keyword, &quot;UTF-8&quot;);</span>
+<span class="fc" id="L125">            HtmlPage page = client.getPage(searchURL);</span>
+
+<span class="fc" id="L127">            DomNodeList&lt;DomElement&gt; scriptTags = page.getElementsByTagName(&quot;script&quot;);</span>
+<span class="fc" id="L128">            String appScript = scriptTags.stream().map(DomNode::getTextContent)</span>
+<span class="fc" id="L129">                    .filter(script -&gt; script.contains(&quot;window.App&quot;)).findFirst().orElse(&quot;&quot;);</span>
+
+<span class="pc bpc" id="L131" title="1 of 2 branches missed.">            if (!appScript.isEmpty()) {</span>
+<span class="fc" id="L132">                scriptEngine.eval(&quot;var window = {}; &quot; + appScript);</span>
+<span class="fc" id="L133">                ScriptObjectMirror mirror = (ScriptObjectMirror) scriptEngine.eval(&quot;window.App.context.dispatcher.stores.ProductStore.productsMap&quot;);</span>
+
+<span class="fc bfc" id="L135" title="All 2 branches covered.">                for (Map.Entry&lt;String, Object&gt; productObject : mirror.entrySet()) {</span>
+<span class="fc" id="L136">                    ScriptObjectMirror product = (ScriptObjectMirror) productObject.getValue();</span>
+
+                    /*
+                    id: String
+                    title: String
+                    price: String, &quot;HK$2,500&quot;
+                    timeCreated: String &quot;2016-08-21T17:28:14.000Z&quot;
+
+                    url in form of
+                        https://hk.carousell.com/p/title-id
+                    this is tested ok
+                        https://hk.carousell.com/p/id
+                     */
+
+<span class="fc" id="L150">                    results.add(new Item(</span>
+<span class="fc" id="L151">                            (String) product.get(&quot;title&quot;),</span>
+<span class="fc" id="L152">                            Double.parseDouble(((String) product.get(&quot;price&quot;)).replaceAll(&quot;[HK$,]&quot;, &quot;&quot;)),</span>
+<span class="fc" id="L153">                            &quot;https://hk.carousell.com/p/&quot; + product.get(&quot;id&quot;),</span>
+<span class="fc" id="L154">                            ISO_8061_FORMATTER.parse(((String) product.get(&quot;timeCreated&quot;)).replace(&quot;Z&quot;, &quot;+0000&quot;)),</span>
+                            PORTAL_CAROUSELL
+                    ));
+<span class="fc" id="L157">                }</span>
+            }
+<span class="nc" id="L159">        } catch (IOException | ParseException | ScriptException e) {</span>
+<span class="nc" id="L160">            e.printStackTrace();</span>
+<span class="fc" id="L161">        }</span>
+
+<span class="fc" id="L163">        return results;</span>
+    }
+
+    /**
+     * Scrapes from Craigslist
+     *
+     * @param keyword The search keyword
+     * @return A List of search results as Items
+     */
+    private List&lt;Item&gt; scrapeCraigslist(String keyword) {
+<span class="fc" id="L173">        List&lt;Item&gt; results = new ArrayList&lt;&gt;();</span>
+
+        try {
+<span class="fc" id="L176">            String searchUrl = &quot;https://newyork.craigslist.org/search/sss?sort=rel&amp;query=&quot; + URLEncoder.encode(keyword, &quot;UTF-8&quot;);</span>
+<span class="fc" id="L177">            HtmlPage page = client.getPage(searchUrl);</span>
+
+<span class="fc" id="L179">            List&lt;?&gt; items = page.getByXPath(&quot;//li[@class='result-row']&quot;);</span>
+
+<span class="fc bfc" id="L181" title="All 2 branches covered.">            for (Object item1 : items) {</span>
+<span class="fc" id="L182">                HtmlElement htmlItem = (HtmlElement) item1;</span>
+<span class="fc" id="L183">                HtmlAnchor itemAnchor = htmlItem.getFirstByXPath(&quot;.//p[@class='result-info']/a&quot;);</span>
+<span class="fc" id="L184">                HtmlElement spanPrice = htmlItem.getFirstByXPath(&quot;.//a/span[@class='result-price']&quot;);</span>
+<span class="fc" id="L185">                HtmlElement dateElement = htmlItem.getFirstByXPath(&quot;.//p[@class='result-info']/time&quot;);</span>
+
+                // It is possible that an item doesn't have any price, we set the price to 0.0
+                // in this case
+<span class="fc bfc" id="L189" title="All 2 branches covered.">                String itemPrice = spanPrice == null ? &quot;0.0&quot; : spanPrice.asText();</span>
+
+<span class="fc" id="L191">                results.add(new Item(</span>
+<span class="fc" id="L192">                        itemAnchor.asText(),</span>
+<span class="fc" id="L193">                        Math.round(Double.parseDouble(itemPrice.replace(&quot;$&quot;, &quot;&quot;)) * USD2HKD * 100.0) / 100.0,</span>
+<span class="fc" id="L194">                        itemAnchor.getHrefAttribute(),</span>
+<span class="fc" id="L195">                        CRAIGSLIST_DATETIME_FORMATTER.parse(dateElement.getAttribute(&quot;datetime&quot;)),</span>
+                        PORTAL_CRAIGSLIST
+                ));
+<span class="fc" id="L198">            }</span>
+<span class="nc" id="L199">        } catch (IOException | ParseException e) {</span>
+<span class="nc" id="L200">            e.printStackTrace();</span>
+<span class="fc" id="L201">        }</span>
+
+<span class="fc" id="L203">        return results;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

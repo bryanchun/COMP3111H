@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SearchRecord.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">project</a> &gt; <a href="index.source.html" class="el_package">comp3111.webscraper</a> &gt; <span class="el_source">SearchRecord.java</span></div><h1>SearchRecord.java</h1><pre class="source lang-java linenums">package comp3111.webscraper;
+
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * @author Daniel Cheung, Tse Ho Nam
+ * SearchRecord stores a search that contains the keyword used for the search and the results of the search.
+ * It also provides a save and load function to read and write history from and into files.
+ */
+public class SearchRecord implements Serializable {
+    private static final int MAX_HISTORY_SIZE = 5;
+<span class="fc" id="L21">    private static final ObservableList&lt;SearchRecord&gt; allSearchRecords = FXCollections.observableArrayList();</span>
+<span class="fc" id="L22">    private static final ObjectProperty&lt;SearchRecord&gt; latest = new SimpleObjectProperty&lt;&gt;();</span>
+<span class="fc" id="L23">    private static final WebScraper webScraper = new WebScraper();</span>
+
+    static {
+        //Adds a static listener when the class is first used
+<span class="fc" id="L27">        allSearchRecords.addListener((ListChangeListener&lt;SearchRecord&gt;) listener -&gt; {</span>
+<span class="pc bpc" id="L28" title="1 of 6 branches missed.">            if (listener.next() &amp;&amp; listener.wasAdded() &amp;&amp; allSearchRecords.size() &gt; MAX_HISTORY_SIZE) {</span>
+                //Remove old history
+<span class="fc" id="L30">                allSearchRecords.remove(MAX_HISTORY_SIZE, allSearchRecords.size());</span>
+            }
+<span class="fc bfc" id="L32" title="All 2 branches covered.">            latest.set(allSearchRecords.size() &gt; 0 ? allSearchRecords.get(0) : null);</span>
+<span class="fc" id="L33">        });</span>
+<span class="fc" id="L34">    }</span>
+
+<span class="fc" id="L36">    private String keyword = &quot;&quot;;</span>
+<span class="fc" id="L37">    private List&lt;Item&gt; products = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L38">    private boolean hasSearchRefined = false;</span>
+
+    /**
+     * Default Constructor
+     */
+<span class="fc" id="L43">    SearchRecord() {</span>
+<span class="fc" id="L44">    }</span>
+
+    /**
+     * Constructs a SearchRecord with supplied keyword. Then the constructed instance would initialize a search
+     * immediately.
+     *
+     * @param keyword The search keyword
+     */
+<span class="fc" id="L52">    private SearchRecord(String keyword) {</span>
+<span class="fc" id="L53">        this.search(keyword);</span>
+<span class="fc" id="L54">    }</span>
+
+    /**
+     * Constructs a SearchRecord with supplied attributes.
+     *
+     * @param keyword          Search keyword
+     * @param products         Search product list
+     * @param hasSearchRefined Whether a refine search is conducted
+     */
+<span class="fc" id="L63">    SearchRecord(String keyword, List&lt;Item&gt; products, Boolean hasSearchRefined) {</span>
+<span class="fc" id="L64">        this.keyword = keyword;</span>
+<span class="fc" id="L65">        this.products = products;</span>
+<span class="fc" id="L66">        this.hasSearchRefined = hasSearchRefined;</span>
+<span class="fc" id="L67">    }</span>
+
+    /**
+     * Constructs a SearchRecord with supplied refine keyword. The new instance would then have the refined records.
+     *
+     * @param record  The record the refine search is based on
+     * @param keyword The refine keyword
+     */
+<span class="fc" id="L75">    private SearchRecord(SearchRecord record, String keyword) {</span>
+<span class="fc" id="L76">        this.keyword = keyword;</span>
+<span class="fc" id="L77">        this.hasSearchRefined = true;</span>
+<span class="fc" id="L78">        this.products = record.products.stream().filter(item -&gt; item.getTitle().contains(keyword)).collect(Collectors.toList());</span>
+<span class="fc" id="L79">    }</span>
+
+    /**
+     * Adds a new search
+     *
+     * @param keyword A search keyword
+     */
+    static void newSearch(String keyword) {
+<span class="fc" id="L87">        pushHistory(new SearchRecord(keyword));</span>
+<span class="fc" id="L88">    }</span>
+
+    /**
+     * Pushes a new SearchRecord to allSearchRecords so it would become the latest SearchRecord
+     *
+     * @param searchRecord A new SearchRecord
+     */
+    static void pushHistory(SearchRecord searchRecord) {
+<span class="fc" id="L96">        allSearchRecords.add(0, searchRecord);</span>
+<span class="fc" id="L97">    }</span>
+
+    /**
+     * Initialize a search on the target websites.
+     *
+     * @param keyword The search keyword
+     */
+    private void search(String keyword) {
+<span class="fc" id="L105">        this.keyword = keyword;</span>
+<span class="fc" id="L106">        products = webScraper.scrape(keyword);</span>
+<span class="fc" id="L107">    }</span>
+
+    /**
+     * Adds a new refine search
+     *
+     * @param keyword Refine keyword
+     */
+    static void newRefineSearch(String keyword) {
+<span class="fc" id="L115">        SearchRecord latest = SearchRecord.getLatestProperty().get();</span>
+<span class="fc" id="L116">        pushHistory(new SearchRecord(latest, keyword));</span>
+<span class="fc" id="L117">    }</span>
+
+    /**
+     * Saves all SearchRecords
+     *
+     * @param path The path where the save file is written
+     */
+    public static void save(String path) {
+<span class="fc" id="L125">        System.out.println(&quot;Saving to &quot; + path);</span>
+        try {
+<span class="fc" id="L127">            FileOutputStream fos = new FileOutputStream(path);</span>
+<span class="fc" id="L128">            ObjectOutputStream oos = new ObjectOutputStream(fos);</span>
+<span class="fc" id="L129">            oos.writeObject(new ArrayList&lt;&gt;(allSearchRecords));</span>
+<span class="fc" id="L130">            oos.close();</span>
+<span class="nc" id="L131">        } catch (Exception e) {</span>
+<span class="nc" id="L132">            e.printStackTrace();</span>
+<span class="fc" id="L133">        }</span>
+<span class="fc" id="L134">    }</span>
+
+    /**
+     * Load all SearchRecords
+     *
+     * @param path The path where the save file is loaded
+     * @throws Exception File format not correct
+     */
+    public static void load(String path) throws Exception {
+<span class="fc" id="L143">        System.out.println(&quot;Loading from &quot; + path);</span>
+<span class="fc" id="L144">        FileInputStream fis = new FileInputStream(path);</span>
+<span class="fc" id="L145">        ObjectInputStream ois = new ObjectInputStream(fis);</span>
+<span class="fc" id="L146">        Object obj = ois.readObject();</span>
+<span class="fc" id="L147">        ArrayList&lt;?&gt; genList = (ArrayList&lt;?&gt;) obj;</span>
+<span class="fc" id="L148">        ArrayList&lt;SearchRecord&gt; list = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L149">        list.clear();</span>
+<span class="fc bfc" id="L150" title="All 2 branches covered.">        for (Object x : genList) {</span>
+<span class="fc" id="L151">            list.add((SearchRecord) x);</span>
+<span class="fc" id="L152">        }</span>
+<span class="fc" id="L153">        allSearchRecords.setAll(list);</span>
+<span class="fc" id="L154">    }</span>
+
+    /**
+     * Retrieves the latest added SearchRecord in history
+     *
+     * @return The latest SearchRecord
+     */
+    static ObjectProperty&lt;SearchRecord&gt; getLatestProperty() {
+<span class="fc" id="L162">        return latest;</span>
+    }
+
+    /**
+     * Returns the search keyword
+     *
+     * @return The search keyword
+     */
+    String getKeyword() {
+<span class="fc" id="L171">        return keyword;</span>
+    }
+
+    /**
+     * Manually sets the search keyword, for when the search is refined.
+     *
+     * @param keyword The new search keyword
+     */
+    void setKeyword(String keyword) {
+<span class="fc" id="L180">        this.keyword = keyword;</span>
+<span class="fc" id="L181">    }</span>
+
+
+    /**
+     * Returns whether the SearchRecord has already refined the search results.
+     *
+     * @return A boolean value indicating if the search results is refined.
+     */
+    boolean getHasSearchRefined() {
+<span class="fc" id="L190">        return hasSearchRefined;</span>
+    }
+
+    /**
+     * Returns an ObservableList of the Items search results.
+     *
+     * @return Observable products list
+     */
+    List&lt;Item&gt; getProducts() {
+<span class="fc" id="L199">        return products;</span>
+    }
+
+    /**
+     * Returns all search records
+     *
+     * @return All search records
+     */
+    public static ObservableList&lt;SearchRecord&gt; getAllSearchRecords() {
+<span class="fc" id="L208">        return allSearchRecords;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
