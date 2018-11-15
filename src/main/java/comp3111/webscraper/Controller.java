@@ -1,6 +1,3 @@
-/**
- *
- */
 package comp3111.webscraper;
 
 
@@ -21,10 +18,9 @@ import java.util.stream.Collectors;
 
 
 /**
- * @author Daniel Cheung, Tse Ho Nam, Chun Hiu Sang
- * <p>
- * <p>
  * Controller class that manage GUI interaction. Please see document about JavaFX for details.
+ *
+ * @author Daniel Cheung, Tse Ho Nam, Chun Hiu Sang
  */
 public class Controller {
 
@@ -53,36 +49,36 @@ public class Controller {
 
     // TableTab elements
     @FXML
-    public VBox root;
+    VBox root;
     @FXML
-    public TableView<Item> table;
+    TableView<Item> table;
     @FXML
-    public TableColumn<Item, String> titleColumn;
+    TableColumn<Item, String> titleColumn;
     @FXML
-    public TableColumn<Item, Double> priceColumn;
+    TableColumn<Item, Double> priceColumn;
     @FXML
-    public TableColumn<Item, String> urlColumn;
+    TableColumn<Item, String> urlColumn;
     @FXML
-    public TableColumn<Item, Date> postedDateColumn;
+    TableColumn<Item, Date> postedDateColumn;
     @FXML
-    public TableColumn<Item, String> portalColumn;
+    TableColumn<Item, String> portalColumn;
 
     // DistributionTab elements
     @FXML
-    public BarChart<String, Integer> barChartHistogram;
+    BarChart<String, Integer> barChartHistogram;
 
     // TrendTab elements
     @FXML
-    public ComboBox<SearchRecord> trendCombo;
+    ComboBox<SearchRecord> trendCombo;
     @FXML
-    public AreaChart<String, Double> trendAreaChart;
+    AreaChart<String, Double> trendAreaChart;
 
-    public ObjectProperty<SearchRecord> trendSelected = new SimpleObjectProperty<>();
+    ObjectProperty<SearchRecord> trendSelected = new SimpleObjectProperty<>();
 
     /**
      * StringProperty storing text that is shown in the console TextArea
      */
-    public StringProperty consoleText = new SimpleStringProperty();
+    StringProperty consoleText = new SimpleStringProperty();
     private BooleanProperty isRefineDisabled = new SimpleBooleanProperty(true);
     private Boolean loadingFile = false;
     private String loadingFilename = "";
@@ -94,7 +90,7 @@ public class Controller {
      * @param products An Item list of products
      * @return Formatted string describing the items
      */
-    public static String generateItemsConsoleOutput(List<Item> products) {
+    static String generateItemsConsoleOutput(List<Item> products) {
         return products.stream().map(item -> item.getTitle() + "\t" + item.getPrice() + "\t" + item.getUrl() + "\n").collect(Collectors.joining());
     }
 

@@ -12,9 +12,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * @author Daniel Cheung, Tse Ho Nam
  * SearchRecord stores a search that contains the keyword used for the search and the results of the search.
  * It also provides a save and load function to read and write history from and into files.
+ *
+ * @author Daniel Cheung, Tse Ho Nam
  */
 public class SearchRecord implements Serializable {
     private static final int MAX_HISTORY_SIZE = 5;

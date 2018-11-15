@@ -5,8 +5,9 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
+ * Represents a product scraped from an online portal.
+ *
  * @author Daniel Cheung
- * Represents a product scraped from an online portal
  */
 public class Item implements Serializable {
     private String title;
