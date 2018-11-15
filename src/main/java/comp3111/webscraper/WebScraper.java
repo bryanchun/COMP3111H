@@ -101,7 +101,7 @@ public class WebScraper {
         allItems.addAll(scrapeCraigslist(keyword));
         allItems.addAll(scrapeCarousell(keyword));
 
-        allItems.sort((a, b) -> Boolean.compare(a.getPortal().equals(PORTAL_CRAIGSLIST), b.getPortal().equals(PORTAL_CRAIGSLIST)));
+        allItems.sort((a, b) -> Boolean.compare(a.getPortal().equals(PORTAL_CAROUSELL), b.getPortal().equals(PORTAL_CAROUSELL)));
         allItems.sort(Comparator.comparingDouble(Item::getPrice));
 
         return allItems;
