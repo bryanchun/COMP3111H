@@ -258,7 +258,6 @@ public class ControllerTest extends ApplicationTest {
     @Test
     public void testInitDistribution() throws Exception {
 
-        final String BAR_DEFAULT_CLASS = "default-bar";
         final String BAR_ACTIVE_CLASS = "active-bar";
 
         SearchRecord.getAllSearchRecords().clear();
@@ -321,7 +320,6 @@ public class ControllerTest extends ApplicationTest {
                 for (XYChart.Data otherBin : series.getData()) {
                     Node otherBinNode = otherBin.getNode();
                     if (otherBinNode != binNode1) {
-                        assertTrue(otherBinNode.getStyleClass().contains(BAR_DEFAULT_CLASS));
                         assertFalse(otherBinNode.getStyleClass().contains(BAR_ACTIVE_CLASS));
                     }
                 }

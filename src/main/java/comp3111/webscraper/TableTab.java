@@ -10,11 +10,11 @@ import javafx.stage.Stage;
 import javafx.util.Callback;
 
 /**
- * TableTab
+ * Fill in a table of searched products with their title, price, url, posted date and portal.
+ *
+ * Clicking on the URL will open the product link in the browser. Clicking on the column lebel will sort the products.
  *
  * @author Chun Hiu Sang
- *
- * Fill in a table of searched products with their title, price, url, posted date and portal. Clicking on the URL will open the product link in the browser. Clicking on the column lebel will sort the products.
  */
 
 class TableTab {
@@ -71,6 +71,9 @@ class TableTab {
 
     /**
      * Generates callback for URL cell
+     *
+     * @param <S> The type of the class contained within the TableView.items list.
+     * @param <T> The type of the class contained within the TableColumn cells.
      *
      * @return Callback for URL onClick handling
      */

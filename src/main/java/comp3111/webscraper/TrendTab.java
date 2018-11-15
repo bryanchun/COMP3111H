@@ -19,11 +19,9 @@ import java.util.stream.IntStream;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 /**
- * TrendTab
- *
- * @author CHEUNG, Danel
- *
  * Displays an AreaChart and a combo box, and updates the chart when a searched keyword is selected in the combo box, the last 7 days of the average prices of the product listings created on that day, and updates the console when the user double clicks on a point on the chart, to show the products on that day.
+ *
+ * @author CHEUNG, Daniel
  */
 class TrendTab {
     private static final int MAX_DAYS = 7;
@@ -43,6 +41,9 @@ class TrendTab {
         this.controller = controller;
         ObservableList<Series<String, Double>> seriesList = FXCollections.observableArrayList();
         seriesList.add(series);
+
+        controller.trendAreaChart.getXAxis().setLabel("Last 7 days");
+        controller.trendAreaChart.getYAxis().setLabel("Average price");
 
         controller.trendSelected.addListener((o, oldValue, newValue) -> {
             final LocalDate today = LocalDate.now();

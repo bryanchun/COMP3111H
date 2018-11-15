@@ -12,11 +12,11 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
- * DistributionTab
+ * Fill in a histogram of prices with the current products after a search.
+ *
+ * According to the range of the prices, 10 equal intervals are generated and products falling into respective price ranges will be allocated there. Double clicking one bar will change its color to blue, while all other bars restore to orange.
  *
  * @author Chun Hiu Sang
- *
- * Fill in a histogram of prices with the current products after a search. According to the range of the prices, 10 equal intervals are generated and products falling into respective price ranges will be allocated there. Double clicking one bar will change its color to blue, while all other bars restore to orange.
  */
 
 class DistributionTab {
@@ -24,7 +24,6 @@ class DistributionTab {
     private Controller controller;
     private Double numOfBins = 10.0;
 
-    private static final String BAR_DEFAULT_CLASS = "default-bar";
     private static final String BAR_ACTIVE_CLASS = "active-bar";
 
 
@@ -84,7 +83,6 @@ class DistributionTab {
 
                 // Set Double Click listeners for all nodes
                 series.getData().forEach(bin -> {
-                    bin.getNode().getStyleClass().add(BAR_DEFAULT_CLASS);
                     bin.getNode().setOnMouseClicked(event -> {
                         if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2) {
                             System.out.println("Double clicked");
@@ -186,15 +184,9 @@ class DistributionTab {
         if (!bin.getNode().getStyleClass().contains(BAR_ACTIVE_CLASS)) {
             bin.getNode().getStyleClass().add(BAR_ACTIVE_CLASS);
         }
-        bin.getNode().getStyleClass().removeIf(className -> className.equals(BAR_DEFAULT_CLASS));
 
-        series.getData().forEach(otherBin -> {
-            if (otherBin != bin) {
-                otherBin.getNode().getStyleClass().removeIf(className -> className.equals(BAR_ACTIVE_CLASS));
-                if (!otherBin.getNode().getStyleClass().contains(BAR_DEFAULT_CLASS)) {
-                    otherBin.getNode().getStyleClass().add(BAR_DEFAULT_CLASS);
-                }
-            }
-        });
+        series.getData()
+                .filtered(otherBin -> otherBin != bin)
+                .forEach(b -> b.getNode().getStyleClass().removeIf(className -> className.equals(BAR_ACTIVE_CLASS)));
     }
 }

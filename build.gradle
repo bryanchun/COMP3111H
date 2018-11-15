@@ -29,7 +29,15 @@ task debug(type:JavaExec) {
    jvmArgs '-Xdebug', '-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=9099'
    main = 'comp3111.webscraper.WebScraperApplication'
    classpath = sourceSets.main.runtimeClasspath
-} 
+}
+
+task myJavadocs(type: Javadoc) {
+    source = sourceSets.main.allJava
+    options.memberLevel = JavadocMemberLevel.PRIVATE
+    ((StandardJavadocDocletOptions) options).author(true)
+    classpath = configurations.compile
+    destinationDir = file("./doc/")
+}
 
 dependencies {
 	// https://mvnrepository.com/artifact/net.sourceforge.htmlunit/htmlunit
