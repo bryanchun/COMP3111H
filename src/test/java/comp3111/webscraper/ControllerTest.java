@@ -381,6 +381,8 @@ public class ControllerTest extends ApplicationTest {
         //Starting test
         clickOn((Node) lookup("#tabpane > .tab-header-area > .headers-region > .tab").nth(4).query());
         clickOn("#trendCombo");
+        type(KeyCode.ENTER);
+        clickOn("#trendCombo");
         type(KeyCode.DOWN);
         type(KeyCode.DOWN);
         sleep(1000);

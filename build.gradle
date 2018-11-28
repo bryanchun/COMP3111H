@@ -31,7 +31,9 @@ task debug(type:JavaExec) {
    classpath = sourceSets.main.runtimeClasspath
 }
 
-task myJavadocs(type: Javadoc) {
+tasks.remove(javadoc)
+
+task javadoc(type: Javadoc) {
     source = sourceSets.main.allJava
     options.memberLevel = JavadocMemberLevel.PRIVATE
     ((StandardJavadocDocletOptions) options).author(true)
