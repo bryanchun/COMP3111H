@@ -385,7 +385,7 @@ public class ControllerTest extends ApplicationTest {
         clickOn("#trendCombo");
         type(KeyCode.DOWN);
         type(KeyCode.DOWN);
-        sleep(000);
+        sleep(1000);
 
         Node datum = lookup("#trendAreaChart .chart-area-symbol").nth(1).query();
 
